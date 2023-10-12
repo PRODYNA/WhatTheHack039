@@ -32,3 +32,12 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+
+# Ignore IntelliJ IDEA
+.idea/*
+
+# Ignore Visual Studio Code Workspace
+.vscode/*
+
+
+
