@@ -14,11 +14,6 @@ terraform {
       source  = "hashicorp/null"
       version = "3.1.0"
     }
-
-    external = {
-      source  = "hashicorp/external"
-      version = "2.1.0"
-    }
   }
 
   required_version = "= 1.5.5"
