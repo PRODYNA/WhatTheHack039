@@ -52,97 +52,67 @@ resource "azurerm_mssql_database" "hack" {
   zone_redundant = false
 }
 
-# Container group for API and web
-resource "azurerm_container_group" "hack_sqlapi" {
-  name                = "sqlapi"
-  resource_group_name = azurerm_resource_group.hack.name
-  location            = azurerm_resource_group.hack.location
-  os_type             = "Linux"
-  ip_address_type     = "Public"
-
-  image_registry_credential {
-    server   = azurerm_container_registry.hack.login_server
-    username = azurerm_container_registry.hack.admin_username
-    password = azurerm_container_registry.hack.admin_password
+module "network" {
+  source                                                = "Azure/network/azurerm"
+  resource_group_name                                   = azurerm_resource_group.hack.name
+  address_space                                         = "10.52.0.0/16"
+  subnet_prefixes                                       = ["10.52.0.0/16"]
+  subnet_names                                          = ["subnet1"]
+  depends_on                                            = [azurerm_resource_group.hack]
+  subnet_enforce_private_link_endpoint_network_policies = {
+    "subnet1" : true
   }
-
-  container {
-    name   = "sqlapi"
-    image  = "${azurerm_container_registry.hack.login_server}/hack/sqlapi:1.0"
-    cpu    = 0.25
-    memory = 0.5
-
-    ports {
-      port     = 8080
-      protocol = "TCP"
-    }
-
-    environment_variables = {
-      SQL_SERVER_USERNAME = azurerm_mssql_server.hack.administrator_login
-      SQL_SERVER_PASSWORD = azurerm_mssql_server.hack.administrator_login_password
-      SQL_SERVER_FQDN     = azurerm_mssql_server.hack.fully_qualified_domain_name
-    }
-  }
-
-  exposed_port {
-    port = 8080
-  }
+  use_for_each = false
 }
 
-resource "null_resource" "curl_command" {
-  depends_on = [azurerm_container_group.hack_sqlapi]
+module "aks" {
+  source                               = "Azure/aks/azurerm"
+  resource_group_name                  = azurerm_resource_group.hack.name
+  client_id                            = ""
+  client_secret                        = ""
+  kubernetes_version                   = "1.26.6"
+  orchestrator_version                 = "1.26.6"
+  prefix                               = "default"
+  cluster_name                         = local.common-name
+  network_plugin                       = "azure"
+  vnet_subnet_id                       = module.network.vnet_subnets[0]
+  os_disk_size_gb                      = 50
+  sku_tier                             = "Free" # defaults to Free
+  rbac_aad                             = false
+  role_based_access_control_enabled    = false
+  rbac_aad_admin_group_object_ids      = null
+  rbac_aad_managed                     = false
+  private_cluster_enabled              = false
+  http_application_routing_enabled     = true
+  azure_policy_enabled                 = true
+  enable_auto_scaling                  = true
+  enable_host_encryption               = false
+  agents_min_count                     = 1
+  agents_max_count                     = 1
+  agents_count                         = null
+  # Please set `agents_count` `null` while `enable_auto_scaling` is `true` to avoid possible `agents_count` changes.
+  agents_max_pods                      = 100
+  agents_pool_name                     = "exnodepool"
+  agents_availability_zones            = ["1", "2"]
+  agents_type                          = "VirtualMachineScaleSets"
+  agents_size                          = "standard_dc2s_v2"
+  cluster_log_analytics_workspace_name = "${local.common-name}-aks"
 
-  provisioner "local-exec" {
-    command = "curl -s -X GET http://${azurerm_container_group.hack_sqlapi.ip_address}:8080/api/ip"
-  }
-}
-
-data "external" "curl_output" {
-  depends_on = [null_resource.curl_command]
-  program    = ["sh", "-c", "curl -s -X GET http://${azurerm_container_group.hack_sqlapi.ip_address}:8080/api/ip"]
-}
-
-output "json_data" {
-  value = data.external.curl_output.result
-}
-
-resource "azurerm_mssql_firewall_rule" "hack" {
-  name             = "sqlapi"
-  server_id        = azurerm_mssql_server.hack.id
-  start_ip_address = data.external.curl_output.result.my_public_ip
-  end_ip_address   = data.external.curl_output.result.my_public_ip
-}
-
-resource "azurerm_container_group" "hack_web" {
-  name                = "web"
-  resource_group_name = azurerm_resource_group.hack.name
-  location            = azurerm_resource_group.hack.location
-  os_type             = "Linux"
-  ip_address_type     = "Public"
-
-  image_registry_credential {
-    server   = azurerm_container_registry.hack.login_server
-    username = azurerm_container_registry.hack.admin_username
-    password = azurerm_container_registry.hack.admin_password
-  }
-
-  container {
-    name   = "web"
-    image  = "${azurerm_container_registry.hack.login_server}/hack/web:1.0"
-    cpu    = 0.25
-    memory = 0.5
-
-    ports {
-      port     = 80
-      protocol = "TCP"
-    }
-
-    environment_variables = {
-      API_URL = "http://${azurerm_container_group.hack_sqlapi.ip_address}:8080"
-    }
+  agents_labels = {
+    "nodepool" : "defaultnodepool"
   }
 
-  exposed_port {
-    port = 80
+  agents_tags = {
+    "Agent" : "defaultnodepoolagent"
   }
+
+  ingress_application_gateway_enabled     = true
+  ingress_application_gateway_name        = "${local.common-name}-aks"
+  ingress_application_gateway_subnet_cidr = "10.52.1.0/24"
+
+  network_policy             = "azure"
+  net_profile_dns_service_ip = "10.0.0.10"
+  net_profile_service_cidr   = "10.0.0.0/16"
+
+  depends_on = [module.network]
 }
