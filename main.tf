@@ -56,7 +56,7 @@ module "network" {
   source                                                = "Azure/network/azurerm"
   resource_group_name                                   = azurerm_resource_group.hack.name
   address_space                                         = "10.52.0.0/16"
-  subnet_prefixes                                       = ["10.52.0.0/16"]
+  subnet_prefixes                                       = ["10.52.0.0/24"]
   subnet_names                                          = ["subnet1"]
   depends_on                                            = [azurerm_resource_group.hack]
   subnet_enforce_private_link_endpoint_network_policies = {
@@ -70,8 +70,8 @@ module "aks" {
   resource_group_name                  = azurerm_resource_group.hack.name
   client_id                            = ""
   client_secret                        = ""
-  kubernetes_version                   = "1.26.6"
-  orchestrator_version                 = "1.26.6"
+  kubernetes_version                   = "1.27.3"
+  orchestrator_version                 = "1.27.3"
   prefix                               = "default"
   cluster_name                         = local.common-name
   network_plugin                       = "azure"
@@ -95,7 +95,7 @@ module "aks" {
   agents_pool_name                     = "exnodepool"
   agents_availability_zones            = ["1", "2"]
   agents_type                          = "VirtualMachineScaleSets"
-  agents_size                          = "standard_dc2s_v2"
+  agents_size                          = "standard_dc2s_v3"
   cluster_log_analytics_workspace_name = "${local.common-name}-aks"
 
   agents_labels = {
