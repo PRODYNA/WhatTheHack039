@@ -3,19 +3,19 @@ resource "random_integer" "random" {
   max = 9999
 }
 
-variable "default_location" {
-  type    = string
-  default = "westeurope"
+locals {
+  common-name = "hack${random_integer.random.result}"
 }
 
 # Resource group for all hack related resources
 resource "azurerm_resource_group" "hack" {
-  name     = "hack${random_integer.random.result}"
+  name     = local.common-name
   location = var.default_location
 }
 
+# ACR and images
 resource "azurerm_container_registry" "hack" {
-  name                = "hack${random_integer.random.result}"
+  name                = local.common-name
   resource_group_name = azurerm_resource_group.hack.name
   location            = var.default_location
   sku                 = "Basic"
@@ -34,8 +34,9 @@ resource "null_resource" "build_web" {
   }
 }
 
+# SQL Server and database
 resource "azurerm_mssql_server" "hack" {
-  name                         = "hack${random_integer.random.result}"
+  name                         = local.common-name
   resource_group_name          = azurerm_resource_group.hack.name
   location                     = azurerm_resource_group.hack.location
   version                      = "12.0"
@@ -51,6 +52,7 @@ resource "azurerm_mssql_database" "hack" {
   zone_redundant = false
 }
 
+# Container group for API and web
 resource "azurerm_container_group" "hack_sqlapi" {
   name                = "sqlapi"
   resource_group_name = azurerm_resource_group.hack.name
