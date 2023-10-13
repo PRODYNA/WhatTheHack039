@@ -9,12 +9,25 @@ resource "azurerm_key_vault" "hack" {
   sku_name = "standard"
   tenant_id = data.azurerm_client_config.current.tenant_id
   purge_protection_enabled = false
+  access_policy {
+  }
+  enable_rbac_authorization = true
 }
 
-/*
+// Assign role User Secret Officer to the service principal
+resource "azurerm_role_assignment" "hack" {
+  scope = azurerm_key_vault.hack.id
+  role_definition_name = "Key Vault Secrets Officer"
+  principal_id = data.azurerm_client_config.current.object_id
+}
+
+// TODO: write secret into the keyvault
 resource "azurerm_key_vault_secret" "mssql_server_administrator_login_password" {
   name = "mssql-server-administrator-login-password"
   value = azurerm_mssql_server.hack.administrator_login_password
   key_vault_id = azurerm_key_vault.hack.id
+
+  depends_on = [
+    azurerm_role_assignment.hack
+  ]
 }
-*/
