@@ -68,6 +68,7 @@ module "network" {
 module "aks" {
   source                               = "Azure/aks/azurerm"
   resource_group_name                  = azurerm_resource_group.hack.name
+  node_resource_group                  = "${azurerm_resource_group.hack.name}-aks-resources"
   client_id                            = ""
   client_secret                        = ""
   kubernetes_version                   = "1.27.3"
