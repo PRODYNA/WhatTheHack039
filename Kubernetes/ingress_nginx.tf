@@ -1,3 +1,4 @@
+/*
 resource "kubernetes_namespace" "ingress-nginx" {
   metadata {
     name = "ingress-nginx"
@@ -16,3 +17,4 @@ resource "helm_release" "ingress-nginx" {
     file("helm/ingress-nginx.yaml")
   ]
 }
+*/

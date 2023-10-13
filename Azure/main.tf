@@ -17,7 +17,7 @@ resource "azurerm_resource_group" "hack" {
 resource "azurerm_container_registry" "hack" {
   name                = local.common-name
   resource_group_name = azurerm_resource_group.hack.name
-  location            = var.default_location
+  location            = azurerm_resource_group.hack.location
   sku                 = "Basic"
   admin_enabled       = true
 }
@@ -55,12 +55,14 @@ resource "azurerm_mssql_database" "hack" {
 module "network" {
   source                                                = "Azure/network/azurerm"
   resource_group_name                                   = azurerm_resource_group.hack.name
+  vnet_name                                             = local.common-name
   address_space                                         = "10.52.0.0/16"
-  subnet_prefixes                                       = ["10.52.0.0/24","10.52.1.0/24"]
-  subnet_names                                          = ["subnet1","subnet2"]
+  subnet_prefixes                                       = ["10.52.0.0/24", "10.52.1.0/24"]
+  subnet_names                                          = ["aks", "aks-agw"]
   depends_on                                            = [azurerm_resource_group.hack]
   subnet_enforce_private_link_endpoint_network_policies = {
-    "subnet1" : true
+    "aks" : true
+    "aks-agw" : false
   }
   use_for_each = false
 }
@@ -68,11 +70,13 @@ module "network" {
 module "aks" {
   source                               = "Azure/aks/azurerm"
   resource_group_name                  = azurerm_resource_group.hack.name
+  location                             = azurerm_resource_group.hack.location
   node_resource_group                  = "${azurerm_resource_group.hack.name}-aks-resources"
   client_id                            = ""
   client_secret                        = ""
-  kubernetes_version                   = "1.27.3"
-  orchestrator_version                 = "1.27.3"
+  kubernetes_version                   = "1.27"
+  orchestrator_version                 = "1.27"
+  automatic_channel_upgrade            = "patch"
   prefix                               = "default"
   cluster_name                         = local.common-name
   network_plugin                       = "azure"
@@ -84,7 +88,7 @@ module "aks" {
   rbac_aad_admin_group_object_ids      = null
   rbac_aad_managed                     = false
   private_cluster_enabled              = false
-  http_application_routing_enabled     = false
+  http_application_routing_enabled     = true
   azure_policy_enabled                 = true
   enable_auto_scaling                  = true
   enable_host_encryption               = false
@@ -94,9 +98,9 @@ module "aks" {
   # Please set `agents_count` `null` while `enable_auto_scaling` is `true` to avoid possible `agents_count` changes.
   agents_max_pods                      = 100
   agents_pool_name                     = "exnodepool"
-  agents_availability_zones            = ["1", "2"]
+  agents_availability_zones            = []
   agents_type                          = "VirtualMachineScaleSets"
-  agents_size                          = "standard_dc2s_v3"
+  agents_size                          = "standard_d4ds_v4"
   cluster_log_analytics_workspace_name = "${local.common-name}-aks"
   attached_acr_id_map                  = {
     "hack_acr" : azurerm_container_registry.hack.id
@@ -110,19 +114,28 @@ module "aks" {
     "Agent" : "defaultnodepoolagent"
   }
 
-  ingress_application_gateway_enabled     = false
-  ingress_application_gateway_name        = "${local.common-name}-aks"
-  ingress_application_gateway_subnet_cidr = "10.52.1.0/24"
-
+  ingress_application_gateway_enabled          = true
+  ingress_application_gateway_name             = "${local.common-name}-agw"
+  ingress_application_gateway_subnet_id        = module.network.vnet_subnets[1]
   network_contributor_role_assigned_subnet_ids = {
-    vnet_subnet = module.network.vnet_subnets[1]
+    aks-agw-snet = module.network.vnet_subnets[1]
   }
-
-  // ingress_application_gateway_subnet_id = module.network.vnet_subnets[1]
 
   network_policy             = "azure"
   net_profile_dns_service_ip = "10.0.0.10"
   net_profile_service_cidr   = "10.0.0.0/16"
 
   depends_on = [module.network]
+}
+
+resource "azurerm_role_assignment" "application_gateway_subnet_network_contributor_vnet" {
+  principal_id         = module.aks.ingress_application_gateway.ingress_application_gateway_identity[0].object_id
+  scope                = module.network.vnet_id
+  role_definition_name = "Network Contributor"
+}
+
+resource "azurerm_role_assignment" "application_gateway_subnet_network_contributor_subnet" {
+  principal_id         = module.aks.ingress_application_gateway.ingress_application_gateway_identity[0].object_id
+  scope                = module.network.vnet_subnets[1]
+  role_definition_name = "Network Contributor"
 }

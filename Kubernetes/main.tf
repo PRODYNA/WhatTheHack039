@@ -75,11 +75,8 @@ resource "kubernetes_deployment" "hack_api" {
 
 resource "kubernetes_service" "api" {
   metadata {
-    name        = "api"
-    namespace   = kubernetes_namespace.hack.metadata.0.name
-    annotations = {
-      "service.beta.kubernetes.io/azure-load-balancer-internal" = "true"
-    }
+    name      = "api"
+    namespace = kubernetes_namespace.hack.metadata.0.name
   }
 
   spec {
@@ -94,6 +91,8 @@ resource "kubernetes_service" "api" {
       target_port = 8080
     }
   }
+
+  wait_for_load_balancer = false
 }
 
 # Web App Deployment and Service
@@ -137,7 +136,7 @@ resource "kubernetes_deployment" "hack_web" {
 
           env {
             name  = "API_URL"
-            value = "http://api.default.svc.cluster.local:8080"
+            value = "http://api.hack.svc.cluster.local:8080"
           }
         }
 
@@ -150,11 +149,8 @@ resource "kubernetes_deployment" "hack_web" {
 
 resource "kubernetes_service" "web" {
   metadata {
-    name        = "web"
-    namespace   = kubernetes_namespace.hack.metadata.0.name
-    annotations = {
-      "service.beta.kubernetes.io/azure-load-balancer-internal" = "true"
-    }
+    name      = "web"
+    namespace = kubernetes_namespace.hack.metadata.0.name
   }
 
   spec {
@@ -169,4 +165,6 @@ resource "kubernetes_service" "web" {
       target_port = 80
     }
   }
+
+  wait_for_load_balancer = false
 }
