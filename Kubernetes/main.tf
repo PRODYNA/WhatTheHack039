@@ -4,6 +4,7 @@ resource "kubernetes_namespace" "hack" {
   }
 }
 
+# SQL API Deployment and Service
 resource "kubernetes_deployment" "hack_api" {
   metadata {
     name      = "api"
@@ -68,6 +69,8 @@ resource "kubernetes_deployment" "hack_api" {
       }
     }
   }
+
+  wait_for_rollout = false
 }
 
 resource "kubernetes_service" "api" {
@@ -89,6 +92,81 @@ resource "kubernetes_service" "api" {
     port {
       port        = 8080
       target_port = 8080
+    }
+  }
+}
+
+# Web App Deployment and Service
+
+resource "kubernetes_deployment" "hack_web" {
+  metadata {
+    name      = "web"
+    namespace = kubernetes_namespace.hack.metadata.0.name
+    labels    = {
+      run = "web"
+    }
+  }
+
+  spec {
+    replicas = 1
+
+    selector {
+      match_labels = {
+        run = "web"
+      }
+    }
+
+    strategy {
+      type = "RollingUpdate"
+    }
+
+    template {
+      metadata {
+        labels = {
+          run = "web"
+        }
+      }
+
+      spec {
+        container {
+          image = "${var.hack_common_name}.azurecr.io/hack/web:1.0"
+          name  = "web"
+          port {
+            container_port = 80
+          }
+
+          env {
+            name  = "API_URL"
+            value = "http://api.default.svc.cluster.local:8080"
+          }
+        }
+
+        restart_policy = "Always"
+      }
+    }
+  }
+  wait_for_rollout = false
+}
+
+resource "kubernetes_service" "web" {
+  metadata {
+    name        = "web"
+    namespace   = kubernetes_namespace.hack.metadata.0.name
+    annotations = {
+      "service.beta.kubernetes.io/azure-load-balancer-internal" = "true"
+    }
+  }
+
+  spec {
+    selector = {
+      run = kubernetes_deployment.hack_web.spec.0.template.0.metadata.0.labels.run
+    }
+
+    type = "LoadBalancer"
+
+    port {
+      port        = 80
+      target_port = 80
     }
   }
 }
