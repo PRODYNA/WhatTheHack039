@@ -87,7 +87,7 @@ resource "kubernetes_service" "api" {
       run = kubernetes_deployment.hack_api.spec.0.template.0.metadata.0.labels.run
     }
 
-    type = "ClusterIP"
+    type = "LoadBalancer"
 
     port {
       port        = 8080
@@ -162,7 +162,7 @@ resource "kubernetes_service" "web" {
       run = kubernetes_deployment.hack_web.spec.0.template.0.metadata.0.labels.run
     }
 
-    type = "ClusterIP"
+    type = "LoadBalancer"
 
     port {
       port        = 80

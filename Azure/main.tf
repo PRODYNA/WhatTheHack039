@@ -56,8 +56,8 @@ module "network" {
   source                                                = "Azure/network/azurerm"
   resource_group_name                                   = azurerm_resource_group.hack.name
   address_space                                         = "10.52.0.0/16"
-  subnet_prefixes                                       = ["10.52.0.0/24"]
-  subnet_names                                          = ["subnet1"]
+  subnet_prefixes                                       = ["10.52.0.0/24","10.52.1.0/24"]
+  subnet_names                                          = ["subnet1","subnet2"]
   depends_on                                            = [azurerm_resource_group.hack]
   subnet_enforce_private_link_endpoint_network_policies = {
     "subnet1" : true
@@ -84,7 +84,7 @@ module "aks" {
   rbac_aad_admin_group_object_ids      = null
   rbac_aad_managed                     = false
   private_cluster_enabled              = false
-  http_application_routing_enabled     = true
+  http_application_routing_enabled     = false
   azure_policy_enabled                 = true
   enable_auto_scaling                  = true
   enable_host_encryption               = false
@@ -110,9 +110,15 @@ module "aks" {
     "Agent" : "defaultnodepoolagent"
   }
 
-  ingress_application_gateway_enabled     = true
+  ingress_application_gateway_enabled     = false
   ingress_application_gateway_name        = "${local.common-name}-aks"
   ingress_application_gateway_subnet_cidr = "10.52.1.0/24"
+
+  network_contributor_role_assigned_subnet_ids = {
+    vnet_subnet = module.network.vnet_subnets[1]
+  }
+
+  // ingress_application_gateway_subnet_id = module.network.vnet_subnets[1]
 
   network_policy             = "azure"
   net_profile_dns_service_ip = "10.0.0.10"
