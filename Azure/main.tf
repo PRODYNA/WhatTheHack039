@@ -97,6 +97,9 @@ module "aks" {
   agents_type                          = "VirtualMachineScaleSets"
   agents_size                          = "standard_dc2s_v3"
   cluster_log_analytics_workspace_name = "${local.common-name}-aks"
+  attached_acr_id_map                  = {
+    "hack_acr" : azurerm_container_registry.hack.id
+  }
 
   agents_labels = {
     "nodepool" : "defaultnodepool"

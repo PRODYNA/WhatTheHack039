@@ -18,11 +18,6 @@ provider "azurerm" {
   features {}
 }
 
-data "azurerm_kubernetes_cluster" "aks" {
-  resource_group_name = var.hack_common_name
-  name                = var.hack_common_name
-}
-
 provider "kubernetes" {
   host                   = data.azurerm_kubernetes_cluster.aks.kube_config.0.host
   client_key             = base64decode(data.azurerm_kubernetes_cluster.aks.kube_config.0.client_key)
