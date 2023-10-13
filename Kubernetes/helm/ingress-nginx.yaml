@@ -1,0 +1,20 @@
+controller:
+  replicaCount: 2
+  watchIngressWithoutClass: false
+  ingressClassResource:
+    # -- Name of the ingressClass
+    name: nginx
+    # -- Is this ingressClass enabled or not
+    enabled: true
+    # -- Is this the default ingressClass for the cluster
+    default: true
+  service:
+    nodePorts:
+      http: 32080
+      https: 32443
+    externalTrafficPolicy: Local
+    annotations:
+      # see https://github.com/Azure/AKS/issues/2907
+      service.beta.kubernetes.io/azure-load-balancer-health-probe-request-path: /healthz
+defaultBackend:
+  enabled: true

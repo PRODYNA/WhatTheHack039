@@ -9,6 +9,11 @@ terraform {
       source  = "hashicorp/kubernetes"
       version = "~> 2.4"
     }
+
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 2.3"
+    }
   }
 
   required_version = "= 1.5.5"
@@ -25,3 +30,11 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(data.azurerm_kubernetes_cluster.aks.kube_config.0.cluster_ca_certificate)
 }
 
+provider "helm" {
+  kubernetes {
+    host                   = data.azurerm_kubernetes_cluster.aks.kube_config.0.host
+    client_key             = base64decode(data.azurerm_kubernetes_cluster.aks.kube_config.0.client_key)
+    client_certificate     = base64decode(data.azurerm_kubernetes_cluster.aks.kube_config.0.client_certificate)
+    cluster_ca_certificate = base64decode(data.azurerm_kubernetes_cluster.aks.kube_config.0.cluster_ca_certificate)
+  }
+}

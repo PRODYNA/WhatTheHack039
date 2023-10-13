@@ -37,7 +37,7 @@ resource "kubernetes_deployment" "hack_api" {
 
       spec {
         container {
-          image = "${var.hack_common_name}.azurecr.io/hack/sqlapi:1.0"
+          image = "${data.terraform_remote_state.azure.outputs.hack_common_name}.azurecr.io/hack/sqlapi:1.0"
           name  = "api"
           port {
             container_port = 8080
@@ -53,7 +53,7 @@ resource "kubernetes_deployment" "hack_api" {
           }
           env {
             name  = "SQL_SERVER_PASSWORD"
-            value = var.mssql_server_administrator_login_password
+            value = data.terraform_remote_state.azure.outputs.mssql_server_administrator_login_password
           }
           env {
             name  = "SQL_ENGINE"
@@ -87,7 +87,7 @@ resource "kubernetes_service" "api" {
       run = kubernetes_deployment.hack_api.spec.0.template.0.metadata.0.labels.run
     }
 
-    type = "LoadBalancer"
+    type = "ClusterIP"
 
     port {
       port        = 8080
@@ -129,7 +129,7 @@ resource "kubernetes_deployment" "hack_web" {
 
       spec {
         container {
-          image = "${var.hack_common_name}.azurecr.io/hack/web:1.0"
+          image = "${data.terraform_remote_state.azure.outputs.hack_common_name}.azurecr.io/hack/web:1.0"
           name  = "web"
           port {
             container_port = 80
@@ -162,7 +162,7 @@ resource "kubernetes_service" "web" {
       run = kubernetes_deployment.hack_web.spec.0.template.0.metadata.0.labels.run
     }
 
-    type = "LoadBalancer"
+    type = "ClusterIP"
 
     port {
       port        = 80
