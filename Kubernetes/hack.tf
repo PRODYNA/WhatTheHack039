@@ -20,7 +20,7 @@ resource "kubernetes_manifest" "aks-keyvault" {
   }
 }
 
-resource "kubernetes_manifest" "storageproviderclass" {
+resource "kubernetes_manifest" "secretproviderclass" {
   manifest = {
     apiVersion = "secrets-store.csi.x-k8s.io/v1"
     kind = "SecretProviderClass"
