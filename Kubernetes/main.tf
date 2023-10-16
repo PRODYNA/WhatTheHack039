@@ -4,6 +4,36 @@ resource "kubernetes_namespace" "hack" {
   }
 }
 
+resource "kubernetes_config_map" "hack_api" {
+  metadata {
+    name = "api"
+    namespace = kubernetes_namespace.hack.metadata.0.name
+    labels = {
+      run = "api"
+    }
+  }
+  data = {
+    SQL_SERVER_FQDN     = data.azurerm_mssql_server.hack.fully_qualified_domain_name
+    SQL_SERVER_USERNAME = data.azurerm_mssql_server.hack.administrator_login
+    SQL_ENGINE = "sqlserver"
+    USE_SSL = "no"
+  }
+}
+
+resource "kubernetes_secret" "hack_api" {
+  metadata {
+    name = "api"
+    namespace = kubernetes_namespace.hack.metadata.0.name
+    labels = {
+      run = "api"
+    }
+  }
+  data = {
+    SQL_SERVER_PASSWORD = data.terraform_remote_state.azure.outputs.mssql_server_administrator_login_password
+  }
+}
+
+
 # SQL API Deployment and Service
 resource "kubernetes_deployment" "hack_api" {
   metadata {
@@ -43,25 +73,15 @@ resource "kubernetes_deployment" "hack_api" {
             container_port = 8080
           }
 
-          env {
-            name  = "SQL_SERVER_FQDN"
-            value = data.azurerm_mssql_server.hack.fully_qualified_domain_name
+          env_from {
+            config_map_ref {
+              name = kubernetes_config_map.hack_api.metadata.0.name
+            }
           }
-          env {
-            name  = "SQL_SERVER_USERNAME"
-            value = data.azurerm_mssql_server.hack.administrator_login
-          }
-          env {
-            name  = "SQL_SERVER_PASSWORD"
-            value = data.terraform_remote_state.azure.outputs.mssql_server_administrator_login_password
-          }
-          env {
-            name  = "SQL_ENGINE"
-            value = "sqlserver"
-          }
-          env {
-            name  = "USE_SSL"
-            value = "no"
+          env_from {
+            secret_ref {
+              name = kubernetes_secret.hack_api.metadata.0.name
+            }
           }
         }
 
@@ -70,7 +90,7 @@ resource "kubernetes_deployment" "hack_api" {
     }
   }
 
-  wait_for_rollout = false
+  wait_for_rollout = true
 }
 
 resource "kubernetes_service" "api" {
@@ -92,7 +112,7 @@ resource "kubernetes_service" "api" {
     }
   }
 
-  wait_for_load_balancer = false
+  wait_for_load_balancer = true
 }
 
 # Web App Deployment and Service
@@ -166,5 +186,5 @@ resource "kubernetes_service" "web" {
     }
   }
 
-  wait_for_load_balancer = false
+  wait_for_load_balancer = true
 }
