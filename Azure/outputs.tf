@@ -22,3 +22,7 @@ output "keyvault_client_id" {
 output "sql_server_password_name" {
   value = local.sql-password-secret-name
 }
+
+output "tenant_id" {
+  value = data.azurerm_client_config.current.tenant_id
+}
