@@ -27,3 +27,11 @@ resource "azurerm_mssql_database" "hack" {
   sku_name       = "Basic"
   zone_redundant = false
 }
+
+// Open database to public access
+resource "azurerm_mssql_firewall_rule" "public" {
+  name = "public"
+  server_id = azurerm_mssql_server.hack.id
+  start_ip_address = "0.0.0.0"
+  end_ip_address = "0.0.0.0"
+}

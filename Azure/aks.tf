@@ -80,3 +80,17 @@ resource "null_resource" "example" {
     time_sleep.wait_2_minutes
   ]
 }
+
+// Create a managed identity
+resource "azurerm_user_assigned_identity" "hack" {
+  resource_group_name = azurerm_resource_group.hack.name
+  location            = azurerm_resource_group.hack.location
+  name                = "${local.common-name}-mi"
+}
+
+// Assign role Key Vault Secrets User to the managed identity
+resource "azurerm_role_assignment" "aks-keyvault" {
+  scope                = azurerm_key_vault.hack.id
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = azurerm_user_assigned_identity.hack.principal_id
+}

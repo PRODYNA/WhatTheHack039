@@ -17,7 +17,7 @@ resource "azurerm_key_vault" "hack" {
 }
 
 // Assign role Key Vault Secrets Officer to the service principal
-resource "azurerm_role_assignment" "hack" {
+resource "azurerm_role_assignment" "user-keyvault" {
   scope                = azurerm_key_vault.hack.id
   role_definition_name = "Key Vault Secrets Officer"
   principal_id         = data.azurerm_client_config.current.object_id
@@ -31,6 +31,6 @@ resource "azurerm_key_vault_secret" "mssql_server_administrator_login_password" 
   key_vault_id = azurerm_key_vault.hack.id
 
   depends_on = [
-    azurerm_role_assignment.hack
+    azurerm_role_assignment.user-keyvault
   ]
 }
