@@ -96,4 +96,9 @@ resource "kubernetes_ingress_v1" "web" {
       }
     }
   }
+
+  depends_on = [
+    helm_release.ingress-nginx
+  ]
+
 }

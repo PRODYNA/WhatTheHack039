@@ -17,6 +17,8 @@ resource "helm_release" "ingress-nginx" {
   values = [
     file("helm/ingress-nginx.yaml")
   ]
+
+  wait = true
 }
 
 // Read out the ingress-nginx service IP

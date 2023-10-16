@@ -139,5 +139,9 @@ resource "kubernetes_ingress_v1" "api" {
       }
     }
   }
+
+  depends_on = [
+    helm_release.ingress-nginx
+  ]
 }
 
