@@ -36,7 +36,13 @@ for human login or
 az login --service-principal -u <username> -p <password>
 ```
 
-in case you have a service principal. Then run
+in case you have a service principal. Switch to the right subscription using
+
+```shell
+az account set --subscription <subscription-id>
+```
+
+And then run
 
 ```shell
 terraform init
@@ -48,7 +54,35 @@ to install all Terraform providers and modules. After that create the infrastruc
 terraform apply
 ```
 
-Terraform will create a plan that you can confirm by typing "yes" upon question.
+Terraform will create a plan that you can confirm by typing "yes" upon question. You will find the following resource groups in the subscription
+
+* hack<random>XXXX
+* hackXXXX-aks-resources
+
+![image.png](assets/resourcegroups.png)
+
+In the subscription hackXXX you will find the following:
+
+![image.png](assets/image.png?t=1697444619538)
+
+Terraform automatically loads the credentials to your local kubectl environment. So this command should work:
+
+
+
+```
+$ kubectl version                                                                                        ✔  hack8661 ⎈ 
+Client Version: v1.28.2
+Kustomize Version: v5.0.4-0.20230601165947-6ce0bf390ce3
+Server Version: v1.27.3
+```
+
+and
+
+```bash
+$ kubectl get nodes                                                                                         ✔  hack8661 ⎈ 
+NAME                                 STATUS   ROLES   AGE     VERSION
+aks-exnodepool-29187889-vmss000000   Ready    agent   2d17h   v1.27.3
+```
 
 ### Install the Kubernetes part
 

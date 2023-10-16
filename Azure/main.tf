@@ -139,3 +139,9 @@ resource "azurerm_role_assignment" "application_gateway_subnet_network_contribut
   scope                = module.network.vnet_subnets[1]
   role_definition_name = "Network Contributor"
 }
+
+resource "null_resource" "example" {
+  provisioner "local-exec" {
+    command="az aks get-credentials -g ${azurerm_resource_group.hack.name} -n ${local.common-name} --overwrite-existing"
+  }
+}

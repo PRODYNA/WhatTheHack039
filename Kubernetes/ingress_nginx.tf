@@ -1,4 +1,3 @@
-/*
 resource "kubernetes_namespace" "ingress-nginx" {
   metadata {
     name = "ingress-nginx"
@@ -17,4 +16,14 @@ resource "helm_release" "ingress-nginx" {
     file("helm/ingress-nginx.yaml")
   ]
 }
-*/
+
+data "kubernetes_service" "ingress-nginx-controller" {
+  metadata {
+    name = "ingress-nginx-controller"
+    namespace = kubernetes_namespace.ingress-nginx.metadata[0].name
+  }
+  depends_on = [
+    helm_release.ingress-nginx
+  ]
+}
+
