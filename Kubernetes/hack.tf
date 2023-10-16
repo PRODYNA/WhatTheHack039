@@ -19,3 +19,62 @@ resource "kubernetes_manifest" "aks-keyvault" {
     }
   }
 }
+
+resource "kubernetes_manifest" "storageproviderclass" {
+  manifest = {
+    apiVersion = "secrets-store.csi.x-k8s.io/v1"
+    kind = "SecretProviderClass"
+    metadata = {
+      name = data.terraform_remote_state.azure.outputs.hack_common_name
+      namespace = kubernetes_namespace.hack.metadata[0].name
+    }
+    spec = {
+      provider = "azure"
+      parameters = {
+        usePodIdentity = "false"
+        clientID = data.terraform_remote_state.azure.outputs.keyvault_client_id
+        keyvaultName = data.terraform_remote_state.azure.outputs.hack_common_name
+        cloudName = ""
+        objects = jsonencode(
+          [
+            {
+              objectName = "secret1"
+              objectType = "secret"
+              objectVersion = ""
+            },
+            {
+              objectName = "key1"
+              objectType = "key"
+              objectVersion = ""
+            }
+          ]
+        )
+      }
+    }
+
+    /*
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: azure-kvname-wi # needs to be unique per namespace
+spec:
+  provider: azure
+  parameters:
+    usePodIdentity: "false"
+    clientID: "${USER_ASSIGNED_CLIENT_ID}" # Setting this to use workload identity
+    keyvaultName: ${KEYVAULT_NAME}       # Set to the name of your key vault
+    cloudName: ""                         # [OPTIONAL for Azure] if not provided, the Azure environment defaults to AzurePublicCloud
+    objects:  |
+      array:
+        - |
+          objectName: secret1
+          objectType: secret              # object types: secret, key, or cert
+          objectVersion: ""               # [OPTIONAL] object versions, default to latest if empty
+        - |
+          objectName: key1
+          objectType: key
+          objectVersion: ""
+    tenantId: "${IDENTITY_TENANT}"        # The tenant ID of the key vault
+    */
+  }
+}
