@@ -41,11 +41,6 @@ resource "kubernetes_manifest" "storageproviderclass" {
               objectName = "secret1"
               objectType = "secret"
               objectVersion = ""
-            },
-            {
-              objectName = "key1"
-              objectType = "key"
-              objectVersion = ""
             }
           ]
         )

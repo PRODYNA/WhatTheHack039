@@ -26,7 +26,7 @@ resource "azurerm_role_assignment" "user-keyvault" {
 // TODO: write secret into the keyvault
 // Write the database password to the keyvault
 resource "azurerm_key_vault_secret" "mssql_server_administrator_login_password" {
-  name         = "mssql-server-administrator-login-password"
+  name         = "SQL_SERVER_PASSWORD"
   value        = azurerm_mssql_server.hack.administrator_login_password
   key_vault_id = azurerm_key_vault.hack.id
 
