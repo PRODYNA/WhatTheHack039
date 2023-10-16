@@ -4,7 +4,7 @@ resource "random_integer" "random" {
 }
 
 locals {
-  common-name = "hack${random_integer.random.result}"
+  common-name              = "hack${random_integer.random.result}"
   sql-password-secret-name = "sql-server-password"
 }
 

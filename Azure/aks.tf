@@ -94,3 +94,12 @@ resource "azurerm_role_assignment" "aks-keyvault" {
   role_definition_name = "Key Vault Secrets User"
   principal_id         = azurerm_user_assigned_identity.hack.principal_id
 }
+
+resource "azurerm_federated_identity_credential" "hack-credential" {
+  name                = "${local.common-name}-credential"
+  resource_group_name = azurerm_resource_group.hack.name
+  audience            = ["api://AzureADTokenExchange"]
+  issuer              = module.aks.oidc_issuer_url
+  parent_id           = azurerm_user_assigned_identity.hack.id
+  subject             = "system:serviceaccount:hack:hack:aks-keyvault" // must match the namespace and the name of the service account
+}
