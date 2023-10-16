@@ -4,7 +4,7 @@ output "hack_common_name" {
 }
 
 // The login password for the database
-output "mssql_server_administrator_login_password" {
+output "sql_server_password" {
   value     = azurerm_mssql_server.hack.administrator_login_password
   sensitive = true
 }
@@ -17,4 +17,8 @@ output "aks_oidc_isser_url" {
 // The keyvault client id
 output "keyvault_client_id" {
   value = azurerm_user_assigned_identity.hack.client_id
+}
+
+output "sql_server_password_name" {
+  value = local.sql-password-secret-name
 }

@@ -25,7 +25,7 @@ resource "kubernetes_secret" "hack_api" {
     }
   }
   data = {
-    SQL_SERVER_PASSWORD = data.terraform_remote_state.azure.outputs.mssql_server_administrator_login_password
+    SQL_SERVER_PASSWORD = data.terraform_remote_state.azure.outputs.sql_server_password
   }
 }
 

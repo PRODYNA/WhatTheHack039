@@ -5,6 +5,7 @@ resource "random_integer" "random" {
 
 locals {
   common-name = "hack${random_integer.random.result}"
+  sql-password-secret-name = "sql-server-password"
 }
 
 # Resource group for all hack related resources

@@ -38,7 +38,7 @@ resource "kubernetes_manifest" "storageproviderclass" {
         objects = jsonencode(
           [
             {
-              objectName = "secret1"
+              objectName = data.terraform_remote_state.azure.outputs.sql_server_password_name
               objectType = "secret"
               objectVersion = ""
             }
