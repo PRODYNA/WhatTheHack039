@@ -3,7 +3,7 @@ resource "kubernetes_deployment" "hack_web" {
   metadata {
     name      = "web"
     namespace = kubernetes_namespace.hack.metadata.0.name
-    labels    = {
+    labels = {
       run = "web"
     }
   }
@@ -75,7 +75,7 @@ resource "kubernetes_service" "web" {
 // Ingress for the Web App
 resource "kubernetes_ingress_v1" "web" {
   metadata {
-    name = "web"
+    name      = "web"
     namespace = kubernetes_namespace.hack.metadata.0.name
   }
   spec {

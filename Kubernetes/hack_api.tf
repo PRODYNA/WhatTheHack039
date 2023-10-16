@@ -1,7 +1,7 @@
 // Create a configmap for the APi with non-sensitive information
 resource "kubernetes_config_map" "hack_api" {
   metadata {
-    name = "api"
+    name      = "api"
     namespace = kubernetes_namespace.hack.metadata.0.name
     labels = {
       run = "api"
@@ -10,15 +10,15 @@ resource "kubernetes_config_map" "hack_api" {
   data = {
     SQL_SERVER_FQDN     = data.azurerm_mssql_server.hack.fully_qualified_domain_name
     SQL_SERVER_USERNAME = data.azurerm_mssql_server.hack.administrator_login
-    SQL_ENGINE = "sqlserver"
-    USE_SSL = "no"
+    SQL_ENGINE          = "sqlserver"
+    USE_SSL             = "no"
   }
 }
 
 // Create a secret for the API with sensitive information
 resource "kubernetes_secret" "hack_api" {
   metadata {
-    name = "api"
+    name      = "api"
     namespace = kubernetes_namespace.hack.metadata.0.name
     labels = {
       run = "api"
@@ -34,7 +34,7 @@ resource "kubernetes_deployment" "hack_api" {
   metadata {
     name      = "api"
     namespace = kubernetes_namespace.hack.metadata.0.name
-    labels    = {
+    labels = {
       run                   = "api"
       aadpodidentitybinding = "app1-identity"
     }
@@ -118,7 +118,7 @@ resource "kubernetes_service" "api" {
 // Ingress for the Web App
 resource "kubernetes_ingress_v1" "api" {
   metadata {
-    name = "api"
+    name      = "api"
     namespace = kubernetes_namespace.hack.metadata.0.name
   }
   spec {
