@@ -9,9 +9,6 @@ controller:
     # -- Is this the default ingressClass for the cluster
     default: true
   service:
-    nodePorts:
-      http: 32080
-      https: 32443
     externalTrafficPolicy: Local
     annotations:
       # see https://github.com/Azure/AKS/issues/2907

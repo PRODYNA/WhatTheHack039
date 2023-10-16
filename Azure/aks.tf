@@ -72,7 +72,7 @@ resource "time_sleep" "wait_2_minutes" {
 }
 
 // Load the credentials into the local kubeconfig
-resource "null_resource" "example" {
+resource "null_resource" "get-credentials" {
   provisioner "local-exec" {
     command = "az aks get-credentials -g ${azurerm_resource_group.hack.name} -n ${local.common-name} --overwrite-existing"
   }
@@ -95,6 +95,7 @@ resource "azurerm_role_assignment" "aks-keyvault" {
   principal_id         = azurerm_user_assigned_identity.hack.principal_id
 }
 
+// Create a credential for the managed identity
 resource "azurerm_federated_identity_credential" "hack-credential" {
   name                = "${local.common-name}-credential"
   resource_group_name = azurerm_resource_group.hack.name

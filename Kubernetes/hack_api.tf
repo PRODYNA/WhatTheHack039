@@ -61,6 +61,7 @@ resource "kubernetes_deployment" "hack_api" {
       }
 
       spec {
+        service_account_name = "aks-keyvault"
         container {
           image = "${data.terraform_remote_state.azure.outputs.hack_common_name}.azurecr.io/hack/sqlapi:1.0"
           name  = "api"
@@ -87,6 +88,7 @@ resource "kubernetes_deployment" "hack_api" {
             name       = "secrets-inline"
             read_only  = true
           }
+
         }
 
         volume {
@@ -95,7 +97,7 @@ resource "kubernetes_deployment" "hack_api" {
             driver    = "secrets-store.csi.k8s.io"
             read_only = true
             volume_attributes = {
-              secretProviderClass = kubernetes_manifest.secretproviderclass.manifest.metadata.name
+              secretProviderClass = data.terraform_remote_state.azure.outputs.hack_common_name
             }
           }
         }
@@ -106,6 +108,9 @@ resource "kubernetes_deployment" "hack_api" {
   }
 
   wait_for_rollout = true
+  depends_on = [
+    kubectl_manifest.secretproviderclass
+  ]
 }
 
 // Service for the API
@@ -150,7 +155,6 @@ resource "kubernetes_ingress_v1" "api" {
               }
             }
           }
-
           path = "/api"
         }
       }

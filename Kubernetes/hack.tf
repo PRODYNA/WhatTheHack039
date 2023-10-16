@@ -20,55 +20,30 @@ resource "kubernetes_manifest" "aks-keyvault" {
   }
 }
 
-resource "kubernetes_manifest" "secretproviderclass" {
-  manifest = {
-    apiVersion = "secrets-store.csi.x-k8s.io/v1"
-    kind       = "SecretProviderClass"
-    metadata = {
-      name      = data.terraform_remote_state.azure.outputs.hack_common_name
-      namespace = kubernetes_namespace.hack.metadata[0].name
-    }
-    spec = {
-      provider = "azure"
-      parameters = {
-        usePodIdentity = "false"
-        clientID       = data.terraform_remote_state.azure.outputs.keyvault_client_id
-        keyvaultName   = data.terraform_remote_state.azure.outputs.hack_common_name
-        cloudName      = ""
-        objects = yamlencode([
-          {
-            objectName    = data.terraform_remote_state.azure.outputs.sql_server_password_name
-            objectType    = "secret"
-            objectVersion = ""
-          }
-        ])
-        tenantId = data.terraform_remote_state.azure.outputs.tenant_id
-      }
-    }
-
-    /*
+// Create role binding for the service account
+// Note: We need to use the kubectl_manifest resource due to the complex | syntax which kubernetes_manifest does not handle
+resource "kubectl_manifest" "secretproviderclass" {
+  yaml_body = <<YAML
 apiVersion: secrets-store.csi.x-k8s.io/v1
 kind: SecretProviderClass
 metadata:
-  name: azure-kvname-wi # needs to be unique per namespace
+  name: ${data.terraform_remote_state.azure.outputs.hack_common_name}
+  namespace: ${kubernetes_namespace.hack.metadata[0].name}
 spec:
   provider: azure
   parameters:
     usePodIdentity: "false"
-    clientID: "${USER_ASSIGNED_CLIENT_ID}" # Setting this to use workload identity
-    keyvaultName: ${KEYVAULT_NAME}       # Set to the name of your key vault
-    cloudName: ""                         # [OPTIONAL for Azure] if not provided, the Azure environment defaults to AzurePublicCloud
-    objects:  |
+    clientID: ${data.terraform_remote_state.azure.outputs.keyvault_client_id}
+    keyvaultName: ${data.terraform_remote_state.azure.outputs.hack_common_name}
+    cloudName: ""
+    objects: |
       array:
         - |
-          objectName: secret1
-          objectType: secret              # object types: secret, key, or cert
-          objectVersion: ""               # [OPTIONAL] object versions, default to latest if empty
-        - |
-          objectName: key1
-          objectType: key
+          objectName: ${data.terraform_remote_state.azure.outputs.sql_server_password_name}
+          objectType: secret
           objectVersion: ""
-    tenantId: "${IDENTITY_TENANT}"        # The tenant ID of the key vault
-    */
-  }
+          objectAlias: SQL_SERVER_PASSWORD
+    tenantId: ${data.terraform_remote_state.azure.outputs.tenant_id}
+YAML
 }
+
