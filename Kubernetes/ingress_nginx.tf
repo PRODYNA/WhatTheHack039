@@ -1,9 +1,11 @@
+// Create namespace for ingress-nginx
 resource "kubernetes_namespace" "ingress-nginx" {
   metadata {
     name = "ingress-nginx"
   }
 }
 
+// Deploy ingress-nginx via Helm
 resource "helm_release" "ingress-nginx" {
   chart = "ingress-nginx"
   name  = "ingress-nginx"
@@ -17,6 +19,7 @@ resource "helm_release" "ingress-nginx" {
   ]
 }
 
+// Read out the ingress-nginx service IP
 data "kubernetes_service" "ingress-nginx-controller" {
   metadata {
     name = "ingress-nginx-controller"
@@ -27,3 +30,7 @@ data "kubernetes_service" "ingress-nginx-controller" {
   ]
 }
 
+// Create a local variable for the ingress-nginx service IP
+locals {
+  ingress_ip = data.kubernetes_service.ingress-nginx-controller.status[0].load_balancer[0].ingress[0].ip
+}

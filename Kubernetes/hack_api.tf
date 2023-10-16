@@ -1,9 +1,4 @@
-resource "kubernetes_namespace" "hack" {
-  metadata {
-    name = "hack"
-  }
-}
-
+// Create a configmap for the APi with non-sensitive information
 resource "kubernetes_config_map" "hack_api" {
   metadata {
     name = "api"
@@ -20,6 +15,7 @@ resource "kubernetes_config_map" "hack_api" {
   }
 }
 
+// Create a secret for the API with sensitive information
 resource "kubernetes_secret" "hack_api" {
   metadata {
     name = "api"
@@ -33,8 +29,7 @@ resource "kubernetes_secret" "hack_api" {
   }
 }
 
-
-# SQL API Deployment and Service
+// Deployment of the API
 resource "kubernetes_deployment" "hack_api" {
   metadata {
     name      = "api"
@@ -73,11 +68,14 @@ resource "kubernetes_deployment" "hack_api" {
             container_port = 8080
           }
 
+          // use environment from the configmap
           env_from {
             config_map_ref {
               name = kubernetes_config_map.hack_api.metadata.0.name
             }
           }
+
+          // use environment from the secret
           env_from {
             secret_ref {
               name = kubernetes_secret.hack_api.metadata.0.name
@@ -93,6 +91,7 @@ resource "kubernetes_deployment" "hack_api" {
   wait_for_rollout = true
 }
 
+// Service for the API
 resource "kubernetes_service" "api" {
   metadata {
     name      = "api"
@@ -104,6 +103,7 @@ resource "kubernetes_service" "api" {
       run = kubernetes_deployment.hack_api.spec.0.template.0.metadata.0.labels.run
     }
 
+    // LoadBalancer or ClusterIP, use ClusterIP for allow access only via Ingress Controller
     type = "LoadBalancer"
 
     port {
@@ -115,76 +115,29 @@ resource "kubernetes_service" "api" {
   wait_for_load_balancer = true
 }
 
-# Web App Deployment and Service
-
-resource "kubernetes_deployment" "hack_web" {
+// Ingress for the Web App
+resource "kubernetes_ingress_v1" "api" {
   metadata {
-    name      = "web"
-    namespace = kubernetes_namespace.hack.metadata.0.name
-    labels    = {
-      run = "web"
-    }
-  }
-
-  spec {
-    replicas = 1
-
-    selector {
-      match_labels = {
-        run = "web"
-      }
-    }
-
-    strategy {
-      type = "RollingUpdate"
-    }
-
-    template {
-      metadata {
-        labels = {
-          run = "web"
-        }
-      }
-
-      spec {
-        container {
-          image = "${data.terraform_remote_state.azure.outputs.hack_common_name}.azurecr.io/hack/web:1.0"
-          name  = "web"
-          port {
-            container_port = 80
-          }
-
-          env {
-            name  = "API_URL"
-            value = "http://api.hack.svc.cluster.local:8080"
-          }
-        }
-
-        restart_policy = "Always"
-      }
-    }
-  }
-  wait_for_rollout = false
-}
-
-resource "kubernetes_service" "web" {
-  metadata {
-    name      = "web"
+    name = "api"
     namespace = kubernetes_namespace.hack.metadata.0.name
   }
-
   spec {
-    selector = {
-      run = kubernetes_deployment.hack_web.spec.0.template.0.metadata.0.labels.run
-    }
+    rule {
+      http {
+        path {
+          backend {
+            service {
+              name = kubernetes_service.api.metadata.0.name
+              port {
+                number = 8080
+              }
+            }
+          }
 
-    type = "LoadBalancer"
-
-    port {
-      port        = 80
-      target_port = 80
+          path = "/api"
+        }
+      }
     }
   }
-
-  wait_for_load_balancer = true
 }
+
