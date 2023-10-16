@@ -81,15 +81,21 @@ resource "kubernetes_deployment" "hack_api" {
               name = kubernetes_secret.hack_api.metadata.0.name
             }
           }
+
+          volume_mount {
+            mount_path = "/secrets"
+            name       = "secrets-inline"
+            read_only  = true
+          }
         }
 
         volume {
           name = "secrets-inline"
           csi {
-            driver = "secrets-store.csi.k8s.io"
+            driver    = "secrets-store.csi.k8s.io"
             read_only = true
             volume_attributes = {
-              secret_provider_class = kubernetes_manifest.secretproviderclass.manifest.metadata.name
+              secretProviderClass = kubernetes_manifest.secretproviderclass.manifest.metadata.name
             }
           }
         }

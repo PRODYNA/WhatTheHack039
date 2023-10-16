@@ -9,9 +9,9 @@ resource "kubernetes_namespace" "hack" {
 resource "kubernetes_manifest" "aks-keyvault" {
   manifest = {
     apiVersion = "v1"
-    kind = "ServiceAccount"
+    kind       = "ServiceAccount"
     metadata = {
-      name = "aks-keyvault"
+      name      = "aks-keyvault"
       namespace = kubernetes_namespace.hack.metadata[0].name
       annotations = {
         "azure.workload.identity/client-id" = data.terraform_remote_state.azure.outputs.keyvault_client_id
@@ -23,27 +23,26 @@ resource "kubernetes_manifest" "aks-keyvault" {
 resource "kubernetes_manifest" "secretproviderclass" {
   manifest = {
     apiVersion = "secrets-store.csi.x-k8s.io/v1"
-    kind = "SecretProviderClass"
+    kind       = "SecretProviderClass"
     metadata = {
-      name = data.terraform_remote_state.azure.outputs.hack_common_name
+      name      = data.terraform_remote_state.azure.outputs.hack_common_name
       namespace = kubernetes_namespace.hack.metadata[0].name
     }
     spec = {
       provider = "azure"
       parameters = {
         usePodIdentity = "false"
-        clientID = data.terraform_remote_state.azure.outputs.keyvault_client_id
-        keyvaultName = data.terraform_remote_state.azure.outputs.hack_common_name
-        cloudName = ""
-        objects = jsonencode(
-          [
-            {
-              objectName = data.terraform_remote_state.azure.outputs.sql_server_password_name
-              objectType = "secret"
-              objectVersion = ""
-            }
-          ]
-        )
+        clientID       = data.terraform_remote_state.azure.outputs.keyvault_client_id
+        keyvaultName   = data.terraform_remote_state.azure.outputs.hack_common_name
+        cloudName      = ""
+        objects = yamlencode([
+          {
+            objectName    = data.terraform_remote_state.azure.outputs.sql_server_password_name
+            objectType    = "secret"
+            objectVersion = ""
+          }
+        ])
+        tenantId = data.terraform_remote_state.azure.outputs.tenant_id
       }
     }
 

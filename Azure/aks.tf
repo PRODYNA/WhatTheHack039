@@ -101,5 +101,5 @@ resource "azurerm_federated_identity_credential" "hack-credential" {
   audience            = ["api://AzureADTokenExchange"]
   issuer              = module.aks.oidc_issuer_url
   parent_id           = azurerm_user_assigned_identity.hack.id
-  subject             = "system:serviceaccount:hack:hack:aks-keyvault" // must match the namespace and the name of the service account
+  subject             = "system:serviceaccount:hack:aks-keyvault" // must match the namespace and the name of the service account
 }
