@@ -77,17 +77,23 @@ resource "kubernetes_deployment" "hack_api" {
           }
 
           // use environment from the secret
+          /*
           env_from {
             secret_ref {
               name = kubernetes_secret.hack_api.metadata.0.name
             }
           }
+          */
 
           volume_mount {
             mount_path = "/secrets"
             name       = "secrets-inline"
             read_only  = true
           }
+
+          command = [
+            "sh", "-c", "SQL_SERVER_PASSWORD=$(cat /secrets/SQL_SERVER_PASSWORD) python3 sql_api.py"
+          ]
 
         }
 
