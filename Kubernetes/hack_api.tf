@@ -19,7 +19,7 @@ resource "kubernetes_config_map" "hack_api" {
 resource "kubernetes_secret" "hack_api" {
   metadata {
     name      = "api"
-    namespace = kubernetes_namespace.hack.metadata.0.name
+    namespace = kubernetes_namespace.hack.metadata[0].name
     labels = {
       run = "api"
     }
