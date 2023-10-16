@@ -138,6 +138,7 @@ resource "kubernetes_ingress_v1" "api" {
         }
       }
     }
+    ingress_class_name = "nginx"
   }
 
   depends_on = [

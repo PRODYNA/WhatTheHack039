@@ -95,6 +95,7 @@ resource "kubernetes_ingress_v1" "web" {
         }
       }
     }
+    ingress_class_name = "nginx"
   }
 
   depends_on = [
