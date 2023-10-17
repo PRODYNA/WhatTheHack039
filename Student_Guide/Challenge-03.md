@@ -29,3 +29,42 @@ These docs might help you achieving these objectives:
 - [Azure Monitor for Containers](https://docs.microsoft.com/azure/azure-monitor/insights/container-insights-overview)
 - [Prometheus](https://prometheus.io/)
 - [HPA](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/)
+
+### CPU utilization
+
+Using the API of the solution you can create CPU utilization with these commands, that leverage the `pi` endpoint of the API (calculate pi number with x digits).
+
+```bash
+digits=20000  # Test with a couple of digits first (like 10), and then with more (like 20,000) to produce real CPU load
+# Determine endpoint IP depending of whether the cluster has outboundtype=uDR or not
+aks_outbound=$(az aks show -n aks -g $rg --query networkProfile.outboundType -o tsv)
+if [[ "$aks_outbound" == "userDefinedRouting" ]]; then
+  endpoint_ip=$azfw_ip
+  echo "Using Azure Firewall's IP $azfw_ip as endpoint..."
+else
+  endpoint_ip=$nginx_svc_ip
+  echo "Using Ingress Controller's IP $nginx_svc_ip as endpoint..."
+fi
+# Tests
+echo "Testing if API is reachable (no stress test yet)..."
+curl -k "https://${endpoint_ip}.nip.io/api/healthcheck"
+curl -k "https://${endpoint_ip}.nip.io/api/pi?digits=5"
+function test_load {
+  if [[ -z "$1" ]]
+  then
+    seconds=60
+  else
+    seconds=$1
+  fi
+  echo "Launching stress test: Calculating $digits digits of pi for $seconds seconds..."
+  for ((i=1; i <= $seconds; i++))
+  do
+    curl -s -k "https://${endpoint_ip}.nip.io" >/dev/null 2>&1
+    curl -s -k "https://${endpoint_ip}.nip.io/api/pi?digits=${digits}" >/dev/null 2>&1
+    sleep 1
+  done
+}
+test_load 120 &
+```
+
+You can check the increased CPU utilization in Azure Monitor in Prometheus.
