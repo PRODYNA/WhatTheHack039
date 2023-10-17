@@ -15,7 +15,8 @@ You need to fulfill these requirements to complete this challenge:
 - Make sure that no LoadBalancer services with a public IP address can be created in the Kubernetes cluster
 - Add a second node pool to the cluster, and differentiate between user and system node pools
 - Make sure that access to the application over the ingress controller is encrypted with SSL, if you hadn't configured it already
-- Kubernetes administrators must authenticate to the cluster using their AAD credentials
+- (we will leave this one out because probably most people don't have admin rights on AAD)
+   Kubernetes administrators must authenticate to the cluster using their AAD credentials 
 
 ## Success Criteria
 
