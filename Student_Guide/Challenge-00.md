@@ -4,7 +4,7 @@
 
 ## Introduction
 
-Thank you for participating in the AKS Enterprise-Grade What The Hack. Before you can hack, you will need to set up some prerequisites.
+Thank you for participating in the AKS Enterprise-Grade. Before you can hack, you will need to set up some prerequisites.
 
 A smart cloud solution architect always has the right tools in their toolbox.
 
@@ -16,17 +16,19 @@ In this challenge you will be setting up all the tools you will need to complete
 
 You should be able to complete most of the challenges of this hack using the Azure Cloud Shell in your favorite web browser. However, if you work with Azure on a regular basis, you should take the time to install all of the tools on your local workstation.
 
-- [Azure Subscription](../../000-HowToHack/WTH-Common-Prerequisites.md#azure-subscription)
-- [Windows Subsystem for Linux](../../000-HowToHack/WTH-Common-Prerequisites.md#windows-subsystem-for-linux)
-- [Managing Cloud Resources](../../000-HowToHack/WTH-Common-Prerequisites.md#managing-cloud-resources)
-  - [Azure Portal](../../000-HowToHack/WTH-Common-Prerequisites.md#azure-portal)
-  - [Azure CLI](../../000-HowToHack/WTH-Common-Prerequisites.md#azure-cli)
+- [Azure Subscription](https://azure.microsoft.com/en-us/free/)
+- [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install)
+- [Managing Cloud Resources]()
+  - [Azure Portal](https://portal.azure.com/)
+  - [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)
     - **NOTE for Windows users:** Install the Azure CLI on Windows Subsystem for Linux following the instructions for the Linux distribution you are using in WSL.
-  - [Azure Cloud Shell](../../000-HowToHack/WTH-Common-Prerequisites.md#azure-cloud-shell)
-- [Visual Studio Code](../../000-HowToHack/WTH-Common-Prerequisites.md#visual-studio-code)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Optional)
+  - [Azure Cloud Shell](https://learn.microsoft.com/en-us/azure/cloud-shell/overview)
+- [Visual Studio Code](https://code.visualstudio.com/download)
 
 ### Student Resources
+
+The coaches have prepared a sample solution that you will use to complete some of the challenges for this hack.
+The repo for this can be located [here](https://github.com/microsoft/WhatTheHack/): 
 
 Your coach will provide you with a `Resources.zip` file that contains resource files you will use to complete some of the challenges for this hack.  
 
