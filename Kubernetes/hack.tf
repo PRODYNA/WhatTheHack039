@@ -1,5 +1,5 @@
 locals {
-  public_hostname = "hack.${local.ingress_ip}.nip.io"
+  public_hostname = "hack.${local.ingress_ip}.traefik.me"
 }
 
 // Create namespace hack

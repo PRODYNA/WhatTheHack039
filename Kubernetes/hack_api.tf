@@ -214,6 +214,13 @@ resource "kubernetes_ingress_v1" "api" {
         }
       }
     }
+    tls {
+      // This secret does not need to exist, it will be created by cert-manaager
+      secret_name = "api-tls"
+      hosts = [
+        local.public_hostname
+      ]
+    }
     ingress_class_name = "nginx"
   }
 
