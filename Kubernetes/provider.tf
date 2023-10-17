@@ -1,20 +1,24 @@
 terraform {
   required_providers {
+    // needed for generic azure things
     azurerm = {
       source  = "hashicorp/azurerm"
       version = "~> 3.75"
     }
 
+    // needed for kubernetes things
     kubernetes = {
       source  = "hashicorp/kubernetes"
       version = "~> 2.4"
     }
 
+    // needed for helm things
     helm = {
       source  = "hashicorp/helm"
       version = "~> 2.3"
     }
 
+    // needed for special metadata which cannot be handled by the kubernetes provider
     kubectl = {
       source  = "alekc/kubectl"
       version = "2.0.3"
@@ -22,6 +26,7 @@ terraform {
 
   }
 
+  // sticking to the last "nice" version
   required_version = "= 1.5.5"
 }
 
