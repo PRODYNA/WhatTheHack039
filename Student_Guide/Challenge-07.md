@@ -9,8 +9,8 @@ This challenge will cover the implementation of a service mesh technology.
 ## Description
 
 You need to fulfill these requirements to complete this challenge:
-
 - Implement inter-container TLS encryption by leveraging a service mesh
+  (probably we will fall be to a coach demonstrating this instead of running this as a participants challenge)
 
 ## Success Criteria
 
