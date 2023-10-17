@@ -3,7 +3,7 @@ resource "kubernetes_config_map" "hack_api" {
   metadata {
     name      = "api"
     namespace = kubernetes_namespace.hack.metadata.0.name
-    labels    = {
+    labels = {
       run = "api"
     }
   }
@@ -20,7 +20,7 @@ resource "kubernetes_secret" "hack_api" {
   metadata {
     name      = "api"
     namespace = kubernetes_namespace.hack.metadata[0].name
-    labels    = {
+    labels = {
       run = "api"
     }
   }
@@ -34,7 +34,7 @@ resource "kubernetes_deployment" "hack_api" {
   metadata {
     name      = "api"
     namespace = kubernetes_namespace.hack.metadata.0.name
-    labels    = {
+    labels = {
       run                   = "api"
       aadpodidentitybinding = "app1-identity"
     }
@@ -97,8 +97,8 @@ resource "kubernetes_deployment" "hack_api" {
 
           // Mount the PVC as /data
           volume_mount {
-              mount_path = "/data"
-              name       = "api-data"
+            mount_path = "/data"
+            name       = "api-data"
           }
 
           // Mount the PVC as /data
@@ -130,8 +130,8 @@ resource "kubernetes_deployment" "hack_api" {
         volume {
           name = "secrets-inline"
           csi {
-            driver            = "secrets-store.csi.k8s.io"
-            read_only         = true
+            driver    = "secrets-store.csi.k8s.io"
+            read_only = true
             volume_attributes = {
               secretProviderClass = data.terraform_remote_state.azure.outputs.hack_common_name
             }
@@ -159,7 +159,7 @@ resource "kubernetes_deployment" "hack_api" {
   }
 
   wait_for_rollout = true
-  depends_on       = [
+  depends_on = [
     kubectl_manifest.secretproviderclass
   ]
 }
@@ -232,12 +232,12 @@ resource "kubernetes_ingress_v1" "api" {
 // Create a persistent volume claim for the api
 resource "kubernetes_persistent_volume_claim" "hack_api" {
   metadata {
-    name = "api-data"
+    name      = "api-data"
     namespace = kubernetes_namespace.hack.metadata.0.name
   }
   spec {
     storage_class_name = local.premium_zrs_storage_class_name
-    access_modes = ["ReadWriteOnce"]
+    access_modes       = ["ReadWriteOnce"]
     resources {
       requests = {
         storage = "10Gi"
@@ -248,12 +248,12 @@ resource "kubernetes_persistent_volume_claim" "hack_api" {
 
 resource "kubernetes_persistent_volume_claim" "hack_api_shared" {
   metadata {
-    name = "api-data-shared"
+    name      = "api-data-shared"
     namespace = kubernetes_namespace.hack.metadata.0.name
   }
   spec {
     storage_class_name = "azurefile-csi-premium"
-    access_modes = ["ReadWriteMany"]
+    access_modes       = ["ReadWriteMany"]
     resources {
       requests = {
         storage = "10Gi"
@@ -264,7 +264,7 @@ resource "kubernetes_persistent_volume_claim" "hack_api_shared" {
 
 // Challenge 03 - START - Add horizontal pod autoscaler for the API
 // Horizontal pod autoscaler (HPA) for the API
-resource "kubernetes_horizontal_pod_autoscaler_v2" hack_api {
+resource "kubernetes_horizontal_pod_autoscaler_v2" "hack_api" {
   metadata {
     name      = "api"
     namespace = kubernetes_namespace.hack.metadata.0.name
