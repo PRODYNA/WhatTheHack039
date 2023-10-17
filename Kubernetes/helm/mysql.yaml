@@ -1,0 +1,3 @@
+architecture: standalone
+secondary:
+  replicaCount: 1

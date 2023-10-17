@@ -15,7 +15,7 @@ terraform {
     // needed for helm things
     helm = {
       source  = "hashicorp/helm"
-      version = "~> 2.3"
+      version = "~> 2.11.0"
     }
 
     // needed for special metadata which cannot be handled by the kubernetes provider
