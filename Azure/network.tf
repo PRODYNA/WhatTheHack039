@@ -13,17 +13,3 @@ module "network" {
   }
   use_for_each = false
 }
-
-#// Permissions for the AKS service principal to access the Vnet
-#resource "azurerm_role_assignment" "application_gateway_subnet_network_contributor_vnet" {
-#  principal_id         = module.aks.ingress_application_gateway.ingress_application_gateway_identity[0].object_id
-#  scope                = module.network.vnet_id
-#  role_definition_name = "Network Contributor"
-#}
-#
-#// Permissions for the AKS service principal to access the subnet
-#resource "azurerm_role_assignment" "application_gateway_subnet_network_contributor_subnet" {
-#  principal_id         = module.aks.ingress_application_gateway.ingress_application_gateway_identity[0].object_id
-#  scope                = module.network.vnet_subnets[1]
-#  role_definition_name = "Network Contributor"
-#}

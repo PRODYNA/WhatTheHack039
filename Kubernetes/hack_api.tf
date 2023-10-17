@@ -88,12 +88,14 @@ resource "kubernetes_deployment" "hack_api" {
           }
           */
 
+          // Mount the secret as a volume, the directory contains a file with the name SQL_SERVER_PASSWORD
           volume_mount {
             mount_path = "/secrets"
             name       = "secrets-inline"
             read_only  = true
           }
 
+          // Override the command to use the secret
           command = [
             "sh", "-c", "SQL_SERVER_PASSWORD=$(cat /secrets/SQL_SERVER_PASSWORD) python3 sql_api.py"
           ]
@@ -112,6 +114,7 @@ resource "kubernetes_deployment" "hack_api" {
           // Challenge 03 - END - Define resource limits for the API
         }
 
+        // Define the volume that connects to the keyVault
         volume {
           name = "secrets-inline"
           csi {
@@ -147,7 +150,7 @@ resource "kubernetes_service" "api" {
     }
 
     // LoadBalancer or ClusterIP, use ClusterIP for allow access only via Ingress Controller
-    type = "LoadBalancer"
+    type = "ClusterIP"
 
     port {
       port        = 8080
