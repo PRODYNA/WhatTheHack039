@@ -10,11 +10,13 @@ resource "kubernetes_namespace" "hack" {
 }
 
 // Create service account for accessing the keyvault
+// TODO: Understand that we are adding a new service principal, see HINT below
 resource "kubernetes_manifest" "aks-keyvault" {
   manifest = {
     apiVersion = "v1"
     kind       = "ServiceAccount"
     metadata   = {
+      // HINT: This a a new service principal that is allowd to access the keyvault. The name is used in the  federated identity credential, see Azure/aks.tf for that
       name        = "aks-keyvault"
       namespace   = kubernetes_namespace.hack.metadata[0].name
       annotations = {
@@ -26,9 +28,11 @@ resource "kubernetes_manifest" "aks-keyvault" {
 
 // Create role binding for the service account
 // Note: We need to use the kubectl_manifest resource due to the complex | syntax which kubernetes_manifest does not handle
+// TODO: Be aware that we are a secretProviderClass, see the HINTs below
 resource "kubectl_manifest" "secretproviderclass" {
   yaml_body = <<YAML
 apiVersion: secrets-store.csi.x-k8s.io/v1
+# HINT: Be aware of this new CRD
 kind: SecretProviderClass
 metadata:
   name: ${data.terraform_remote_state.azure.outputs.hack_common_name}
@@ -47,7 +51,7 @@ spec:
           objectType: secret
           objectVersion: ""
           objectAlias: SQL_SERVER_PASSWORD
+          # HINT: We are mapping the keyvault secret to the environment variable SQL_SERVER_PASSWORD
     tenantId: ${data.terraform_remote_state.azure.outputs.tenant_id}
 YAML
 }
-

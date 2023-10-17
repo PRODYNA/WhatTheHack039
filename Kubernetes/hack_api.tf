@@ -15,8 +15,7 @@ resource "kubernetes_config_map" "hack_api" {
   }
 }
 
-// Create a secret for the API with sensitive information
-/*
+// TODO: Remove this block, we don't need this anymore
 resource "kubernetes_secret" "hack_api" {
   metadata {
     name      = "api"
@@ -43,9 +42,7 @@ resource "kubernetes_deployment" "hack_api" {
   }
 
   spec {
-    // Challenge 03 - START - Disable fixed number of replicas
     replicas = null
-    // Challenge 03 - END - Disable fixed number of replicas
 
     selector {
       match_labels = {
@@ -65,7 +62,7 @@ resource "kubernetes_deployment" "hack_api" {
       }
 
       spec {
-        service_account_name = "aks-keyvault"
+        // TODO: Use our new service account
 
         container {
           image = "${data.terraform_remote_state.azure.outputs.hack_common_name}.azurecr.io/hack/sqlapi:1.0"
@@ -81,28 +78,20 @@ resource "kubernetes_deployment" "hack_api" {
             }
           }
 
-          // use environment from the secret
-          /*
+          // TODO: Remove this block
           env_from {
             secret_ref {
               name = kubernetes_secret.hack_api.metadata.0.name
             }
           }
-          */
 
-          // Mount the secret as a volume, the directory contains a file with the name SQL_SERVER_PASSWORD
-          volume_mount {
-            mount_path = "/secrets"
-            name       = "secrets-inline"
-            read_only  = true
-          }
+          // TODO: Mount the volume secrets-inline to /secrets
 
           // Override the command to use the secret
           command = [
             "sh", "-c", "SQL_SERVER_PASSWORD=$(cat /secrets/SQL_SERVER_PASSWORD) python3 sql_api.py"
           ]
 
-          // Challenge 03 - START - Define resource limits for the API
           resources {
             limits = {
               cpu    = "0.5"
@@ -113,20 +102,13 @@ resource "kubernetes_deployment" "hack_api" {
               memory = "256Mi"
             }
           }
-          // Challenge 03 - END - Define resource limits for the API
         }
 
-        // Define the volume that connects to the keyVault
-        volume {
-          name = "secrets-inline"
-          csi {
-            driver            = "secrets-store.csi.k8s.io"
-            read_only         = true
-            volume_attributes = {
-              secretProviderClass = data.terraform_remote_state.azure.outputs.hack_common_name
-            }
-          }
-        }
+        // TODO: Define the volume that connects to the keyVault, with parameters
+        // name = "secrets-inline"
+        // type csi
+        // driver = "secrets-store.csi.k8s.io"
+        // secretProviderClass is the name of the secret provider class
 
         restart_policy = "Always"
       }
