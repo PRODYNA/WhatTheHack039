@@ -86,18 +86,11 @@ resource "kubernetes_deployment" "hack_api" {
             }
           }
 
-          // Challenge 03 - START - Define resource limits for the API
-          resources {
-            limits = {
-              cpu    = "0.5"
-              memory = "512Mi"
-            }
-            requests = {
-              cpu    = "0.25"
-              memory = "256Mi"
-            }
-          }
-          // Challenge 03 - END - Define resource limits for the API
+          // TODO: Define resources for CPU and Memory with the following parameters
+          // - CPU limits: 0.25
+          // - Memory limits: 256Mi
+          // - CPU requests: 0.1
+          // - Memory requests: 128Mi
         }
 
         restart_policy = "Always"
@@ -163,31 +156,9 @@ resource "kubernetes_ingress_v1" "api" {
   ]
 }
 
-// Challenge 03 - START - Add horizontal pod autoscaler for the API
-// Horizontal pod autoscaler (HPA) for the API
-resource "kubernetes_horizontal_pod_autoscaler_v2" "hack_api" {
-  metadata {
-    name      = "api"
-    namespace = kubernetes_namespace.hack.metadata.0.name
-  }
-  spec {
-    max_replicas = 10
-    min_replicas = 1
-    metric {
-      type = "Resource"
-      resource {
-        name = "cpu"
-        target {
-          type                = "Utilization"
-          average_utilization = 50
-        }
-      }
-    }
-    scale_target_ref {
-      api_version = "apps/v1"
-      kind        = "Deployment"
-      name        = "api"
-    }
-  }
-}
-// Challenge 03 - END - Add horizontal pod autoscaler for the API
+// TODO: Create an Horizontal Pod Autoscaler for the API with the following criateria
+// - Scale up when CPU utilization is above 50%
+// - Scale down when CPU utilization is below 50%
+// - Minimum number of replicas: 1
+// - Maximum number of replicas: 10
+

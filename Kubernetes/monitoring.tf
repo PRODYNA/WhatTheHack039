@@ -10,10 +10,7 @@ resource "kubernetes_namespace" "hack_monitoring" {
   }
 }
 
-resource "helm_release" "kube-prometheus" {
-  namespace  = resource.kubernetes_namespace.hack_monitoring.metadata.0.name
-  name       = "kube-prometheus-stack"
-  version    = var.helm_chart_version_kube-prometheus
-  repository = "https://prometheus-community.github.io/helm-charts"
-  chart      = "kube-prometheus-stack"
-}
+// TODO: Deploy the kube-prometheus-stack helm chart into the hack-monitoring namespace with the following values:
+// namespace = hack-monitoring
+// version as defiined in the helm_chart_version_kube-prometheus variable
+// repository = https://prometheus-community.github.io/helm-charts
