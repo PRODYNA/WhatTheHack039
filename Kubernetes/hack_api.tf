@@ -92,6 +92,12 @@ resource "kubernetes_deployment" "hack_api" {
             read_only  = true
           }
 
+          // Mount the PVC as /data
+          volume_mount {
+              mount_path = "/data"
+              name       = "api-data"
+          }
+
           // Override the command to use the secret
           command = [
             "sh", "-c", "SQL_SERVER_PASSWORD=$(cat /secrets/SQL_SERVER_PASSWORD) python3 sql_api.py"
@@ -107,6 +113,14 @@ resource "kubernetes_deployment" "hack_api" {
             volume_attributes = {
               secretProviderClass = data.terraform_remote_state.azure.outputs.hack_common_name
             }
+          }
+        }
+
+        // Mount the persistent volume claim
+        volume {
+          name = "api-data"
+          persistent_volume_claim {
+            claim_name = "api-data"
           }
         }
 
@@ -153,6 +167,7 @@ resource "kubernetes_ingress_v1" "api" {
   }
   spec {
     rule {
+      host = local.public_hostname
       http {
         path {
           backend {
@@ -175,3 +190,20 @@ resource "kubernetes_ingress_v1" "api" {
   ]
 }
 
+// Create a persistent volume claim for the api
+resource "kubernetes_persistent_volume_claim" "hack_api" {
+  metadata {
+    name      = "api-data"
+    namespace = kubernetes_namespace.hack.metadata.0.name
+  }
+
+  spec {
+    storage_class_name = local.premium_zrs_storage_class_name
+    access_modes = ["ReadWriteOnce"]
+    resources {
+      requests = {
+        storage = "10Gi"
+      }
+    }
+  }
+}

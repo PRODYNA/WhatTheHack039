@@ -80,6 +80,7 @@ resource "kubernetes_ingress_v1" "web" {
   }
   spec {
     rule {
+      host = local.public_hostname
       http {
         path {
           backend {
