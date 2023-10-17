@@ -54,12 +54,12 @@ output "json_data" {
   value = data.external.curl_output.result
 }
 
+// Open database to API conteainer
 resource "azurerm_mssql_firewall_rule" "hack" {
-  name             = "sqlapi"
-  server_id        = azurerm_mssql_server.hack.id
-  start_ip_address = data.external.curl_output.result.my_public_ip
-  end_ip_address   = data.external.curl_output.result.my_public_ip
+  // TODO Allow access to the database from api container. References https://learn.microsoft.com/en-us/azure/azure-sql/database/firewall-configure
 }
+
+// TODO Create another container group for the web app in the same resource group. Remember to define the API_URL environment variable. This should be the public IP address of the sqlapi container group and use port 8080.
 
 resource "azurerm_container_group" "hack_web" {
   name                = "web"

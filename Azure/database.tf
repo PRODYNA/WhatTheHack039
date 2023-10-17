@@ -21,18 +21,4 @@ resource "azurerm_mssql_server" "hack" {
 }
 
 // SQL database
-resource "azurerm_mssql_database" "hack" {
-  name           = "mydb"
-  server_id      = azurerm_mssql_server.hack.id
-  max_size_gb    = 1
-  sku_name       = "Basic"
-  zone_redundant = false
-}
-
-// Open database to VNets
-resource "azurerm_mssql_firewall_rule" "public" {
-  name             = "public"
-  server_id        = azurerm_mssql_server.hack.id
-  start_ip_address = "0.0.0.0"
-  end_ip_address   = "0.0.0.0"
-}
+// TODO Create msssql database with name "mydb" in the server created above
