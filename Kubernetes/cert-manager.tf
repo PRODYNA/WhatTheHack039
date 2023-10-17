@@ -28,14 +28,14 @@ resource "helm_release" "cert-manager" {
 
 // Create a clusterissuer for the cert-manager
 resource "kubectl_manifest" "clusterissuer" {
-  yaml_body  = <<YAML
+  yaml_body = <<YAML
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
   name: letsencrypt-prod
 spec:
   acme:
-    email: darko.krizic@prodyna.com
+    email: ${var.email_address}
     preferredChain: ""
     privateKeySecretRef:
       name: ${local.clusterissuer_name}

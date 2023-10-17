@@ -67,8 +67,6 @@ In the subscription hackXXX you will find the following:
 
 Terraform automatically loads the credentials to your local kubectl environment. So this command should work:
 
-
-
 ```
 $ kubectl version                                                                                        ✔  hack8661 ⎈ 
 Client Version: v1.28.2
@@ -86,7 +84,13 @@ aks-exnodepool-29187889-vmss000000   Ready    agent   2d17h   v1.27.3
 
 ### Install the Kubernetes part
 
-Go to the Kubernetes directory. Run
+Go to the Kubernetes directory. We need to define the value for the variable email_adress like so
+
+```bash
+echo email_address=<your-email-address> >terraform.auto.tfvars
+```
+
+This file is picked automatically and is ignored by git. Run
 
 ```shell
 terraform init
@@ -99,6 +103,27 @@ terraform apply
 ```
 
 again, confirm with "yes" when asked.
+
+### Verify the result
+
+You should be able to see the following
+
+* ingress-nginx is installed
+  * The ingress-nginx has a public IP address
+* cert-manager is installed
+  * Clusterissuer "letsencrypt-prod" (with your email address)
+* kube-prometheus-stack installed
+* Namespace "hack"
+  * Deployment "api"
+    * Reading the secrets for SQL_SERVER_PASSWORD from the KeyVault
+    * Horizonal Pod Autoscaler
+    * Persitent Volume Claim of type RWX which uses a file share on a storage account
+    * Ingress using traefik.me
+    * Certificate issued by Let's Encrypt
+  * Deployment "web"
+    * Horizional Pod Autoscaler
+    * Ingress using traefik.me
+    * Certificate issued by Let's Encrypt
 
 ### Tearing down
 
