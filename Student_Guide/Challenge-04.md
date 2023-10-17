@@ -42,7 +42,7 @@ Luckily, there is an Azure Key Vault Provider for Secrets Store CSI Driver for A
 
 You need to fulfill these requirements to complete this challenge:
 
-- Supply environment variables to the Web and API containers over Kubernetes config maps or secrets.
+- Supply environment variables to the Web and API containers over Kubernetes config maps and secrets.
 - For sensitive parameters (like the database user password) make sure that they are not stored anywhere in the Kubernetes cluster, but in a purpose-built secret store such as Azure Key Vault.
 - Non-sensitive configuration for the containers should be supplied from a configuration map, not hard coded in the manifests.
 - Make sure that no static password is stored in the AKS cluster that allows access to the Azure Key Vault.
@@ -54,7 +54,7 @@ You need to fulfill these requirements to complete this challenge:
 - Verify the Web site can access and view the database after properly handling the configuration and secret values.
 - Verify that no Azure Service Principal secret is stored in Kubernetes.
 
-## Advanced Challenges (Optional)
+## Advanced Challenges (Optional) (This will be part of the final sample solution)
 
 - Enable SSL in the ingress controller, and have its SSL certificate supplied from a purpose-built store such as Azure Key Vault
 
