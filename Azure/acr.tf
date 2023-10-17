@@ -20,3 +20,8 @@ resource "null_resource" "build_web" {
     command = "az acr build -r ${azurerm_container_registry.hack.name} -t hack/web:1.0 ./Resources/web"
   }
 }
+
+resource "time_sleep" "wait_for_images" {
+  depends_on      = [null_resource.build_api, null_resource.build_web]
+  create_duration = "30s"
+}
