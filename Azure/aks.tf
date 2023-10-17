@@ -111,7 +111,7 @@ resource "azurerm_role_assignment" "aks-keyvault" {
 resource "azurerm_federated_identity_credential" "hack-credential" {
   name                = "${local.common-name}-credential"
   resource_group_name = azurerm_resource_group.hack.name
-  audience            = ["api://AzureADTokenExchange"]
+  audience            = ["api://AzureADTokenExchange"] // should be this value, documented here https://learn.microsoft.com/en-us/graph/api/application-post-federatedidentitycredentials?view=graph-rest-1.0&tabs=http
   issuer              = module.aks.oidc_issuer_url
   parent_id           = azurerm_user_assigned_identity.hack.id
   subject             = "system:serviceaccount:hack:aks-keyvault"
