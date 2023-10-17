@@ -101,6 +101,12 @@ resource "kubernetes_deployment" "hack_api" {
               name       = "api-data"
           }
 
+          // Mount the PVC as /data
+          volume_mount {
+            mount_path = "/shared"
+            name       = "api-data-shared"
+          }
+
           // Override the command to use the secret
           command = [
             "sh", "-c", "SQL_SERVER_PASSWORD=$(cat /secrets/SQL_SERVER_PASSWORD) python3 sql_api.py"
@@ -137,6 +143,13 @@ resource "kubernetes_deployment" "hack_api" {
           name = "api-data"
           persistent_volume_claim {
             claim_name = "api-data"
+          }
+        }
+
+        volume {
+          name = "api-data-shared"
+          persistent_volume_claim {
+            claim_name = "api-data-shared"
           }
         }
 
@@ -218,6 +231,22 @@ resource "kubernetes_persistent_volume_claim" "hack_api" {
   spec {
     storage_class_name = local.premium_zrs_storage_class_name
     access_modes = ["ReadWriteOnce"]
+    resources {
+      requests = {
+        storage = "10Gi"
+      }
+    }
+  }
+}
+
+resource "kubernetes_persistent_volume_claim" "hack_api_shared" {
+  metadata {
+    name = "api-data-shared"
+    namespace = kubernetes_namespace.hack.metadata.0.name
+  }
+  spec {
+    storage_class_name = "azurefile-csi-premium"
+    access_modes = ["ReadWriteMany"]
     resources {
       requests = {
         storage = "10Gi"
