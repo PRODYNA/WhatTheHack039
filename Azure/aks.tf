@@ -61,9 +61,6 @@ module "aks" {
     aks-agw-snet = module.network.vnet_subnets[1]
   }
 
-  key_vault_secrets_provider_enabled = true
-  oidc_issuer_enabled                = true
-
   network_policy             = "azure"
   net_profile_dns_service_ip = "10.0.0.10"
   net_profile_service_cidr   = "10.0.0.0/16"
