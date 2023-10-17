@@ -93,29 +93,3 @@ resource "null_resource" "get-credentials" {
     time_sleep.wait_2_minutes
   ]
 }
-
-// Create a managed identity
-resource "azurerm_user_assigned_identity" "hack" {
-  resource_group_name = azurerm_resource_group.hack.name
-  location            = azurerm_resource_group.hack.location
-  name                = "${local.common-name}-mi"
-}
-
-// Assign role Key Vault Secrets User to the managed identity
-resource "azurerm_role_assignment" "aks-keyvault" {
-  scope                = azurerm_key_vault.hack.id
-  role_definition_name = "Key Vault Secrets User"
-  principal_id         = azurerm_user_assigned_identity.hack.principal_id
-}
-
-// Create a credential for the managed identity
-resource "azurerm_federated_identity_credential" "hack-credential" {
-  name                = "${local.common-name}-credential"
-  resource_group_name = azurerm_resource_group.hack.name
-  audience            = ["api://AzureADTokenExchange"]
-  // should be this value, documented here https://learn.microsoft.com/en-us/graph/api/application-post-federatedidentitycredentials?view=graph-rest-1.0&tabs=http
-  issuer              = module.aks.oidc_issuer_url
-  parent_id           = azurerm_user_assigned_identity.hack.id
-  subject             = "system:serviceaccount:hack:aks-keyvault"
-  // must match the namespace and the name of the service account
-}

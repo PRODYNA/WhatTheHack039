@@ -16,7 +16,6 @@ resource "kubernetes_config_map" "hack_api" {
 }
 
 // Create a secret for the API with sensitive information
-/*
 resource "kubernetes_secret" "hack_api" {
   metadata {
     name      = "api"
@@ -29,7 +28,6 @@ resource "kubernetes_secret" "hack_api" {
     SQL_SERVER_PASSWORD = data.terraform_remote_state.azure.outputs.sql_server_password
   }
 }
-*/
 
 // Deployment of the API
 resource "kubernetes_deployment" "hack_api" {
@@ -65,7 +63,7 @@ resource "kubernetes_deployment" "hack_api" {
       }
 
       spec {
-        service_account_name = "aks-keyvault"
+        service_account_name = "default"
 
         container {
           image = "${data.terraform_remote_state.azure.outputs.hack_common_name}.azurecr.io/hack/sqlapi:1.0"
@@ -82,25 +80,11 @@ resource "kubernetes_deployment" "hack_api" {
           }
 
           // use environment from the secret
-          /*
           env_from {
             secret_ref {
               name = kubernetes_secret.hack_api.metadata.0.name
             }
           }
-          */
-
-          // Mount the secret as a volume, the directory contains a file with the name SQL_SERVER_PASSWORD
-          volume_mount {
-            mount_path = "/secrets"
-            name       = "secrets-inline"
-            read_only  = true
-          }
-
-          // Override the command to use the secret
-          command = [
-            "sh", "-c", "SQL_SERVER_PASSWORD=$(cat /secrets/SQL_SERVER_PASSWORD) python3 sql_api.py"
-          ]
 
           // Challenge 03 - START - Define resource limits for the API
           resources {
@@ -116,27 +100,12 @@ resource "kubernetes_deployment" "hack_api" {
           // Challenge 03 - END - Define resource limits for the API
         }
 
-        // Define the volume that connects to the keyVault
-        volume {
-          name = "secrets-inline"
-          csi {
-            driver            = "secrets-store.csi.k8s.io"
-            read_only         = true
-            volume_attributes = {
-              secretProviderClass = data.terraform_remote_state.azure.outputs.hack_common_name
-            }
-          }
-        }
-
         restart_policy = "Always"
       }
     }
   }
 
   wait_for_rollout = true
-  depends_on       = [
-    kubectl_manifest.secretproviderclass
-  ]
 }
 
 // Service for the API
