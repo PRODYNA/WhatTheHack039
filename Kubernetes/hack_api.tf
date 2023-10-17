@@ -168,9 +168,6 @@ resource "kubernetes_ingress_v1" "api" {
   metadata {
     name        = "api"
     namespace   = kubernetes_namespace.hack.metadata.0.name
-    annotations = {
-      "cert-manager.io/cluster-issuer" = local.clusterissuer_name
-    }
   }
   spec {
     rule {

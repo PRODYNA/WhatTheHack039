@@ -77,9 +77,6 @@ resource "kubernetes_ingress_v1" "web" {
   metadata {
     name      = "web"
     namespace = kubernetes_namespace.hack.metadata.0.name
-    annotations = {
-      "cert-manager.io/cluster-issuer" = local.clusterissuer_name
-    }
   }
   spec {
     rule {
