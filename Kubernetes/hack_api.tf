@@ -16,6 +16,7 @@ resource "kubernetes_config_map" "hack_api" {
 }
 
 // Create a secret for the API with sensitive information
+/*
 resource "kubernetes_secret" "hack_api" {
   metadata {
     name      = "api"
@@ -28,6 +29,7 @@ resource "kubernetes_secret" "hack_api" {
     SQL_SERVER_PASSWORD = data.terraform_remote_state.azure.outputs.sql_server_password
   }
 }
+*/
 
 // Deployment of the API
 resource "kubernetes_deployment" "hack_api" {
