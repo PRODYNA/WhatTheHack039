@@ -20,7 +20,8 @@ module "aks" {
   rbac_aad_admin_group_object_ids      = null
   rbac_aad_managed                     = false
   private_cluster_enabled              = false
-  http_application_routing_enabled     = true
+  // Not using this one, since we are deploying the ingress-nginx ourselves
+  http_application_routing_enabled     = false
   azure_policy_enabled                 = true
   enable_host_encryption               = false
   /* Challenge 03 - START - Enable Auto Scaling */
