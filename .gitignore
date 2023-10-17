@@ -41,5 +41,8 @@ terraform.rc
 # Ignore Visual Studio Code Workspace
 .vscode/*
 
+# Ignore terraform lock files
+*.lock.hcl
+
 
 
