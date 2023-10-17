@@ -8,7 +8,7 @@ This challenge will cover monitoring in AKS, using open source components such a
 
 ## Description
 
-- Implement Prometheus/Grafana **or** Azure Container Insights to be able to monitor cluster metrics
+- Implement Prometheus/Grafana 
 - You can access container logs via Azure Monitor
 - Increase the CPU utilization of the API container with the `pi` API endpoint, and see the corresponding metric increase in Prometheus and/or Azure Monitor
 - Implement a mechanism so that Kubernetes increases the amount of API pods when CPU utilization goes high
