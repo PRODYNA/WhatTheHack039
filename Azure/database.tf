@@ -29,10 +29,6 @@ resource "azurerm_mssql_database" "hack" {
   zone_redundant = false
 }
 
-// Open database to VNets
-resource "azurerm_mssql_firewall_rule" "public" {
-  name             = "public"
-  server_id        = azurerm_mssql_server.hack.id
-  start_ip_address = "0.0.0.0"
-  end_ip_address   = "0.0.0.0"
-}
+// TODO: Add a firewall rule to open the database to the azure internal network. Verify in azure portal that the checkmark "Allow Azure services and resources to access this server" is checked.
+// Tip: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/mssql_firewall_rule
+// Tip: https://learn.microsoft.com/de-de/azure/azure-sql/database/firewall-configure?view=azuresql

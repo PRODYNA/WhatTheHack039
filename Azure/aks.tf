@@ -6,12 +6,14 @@ module "aks" {
   node_resource_group                  = "${azurerm_resource_group.hack.name}-aks-resources"
   client_id                            = ""
   client_secret                        = ""
-  kubernetes_version                   = "1.27"
-  orchestrator_version                 = "1.27"
-  automatic_channel_upgrade            = "patch"
+
+  // TODO: Use the latest released version of the AKS, but ensure that it is automatically updated to the latest patch version
+
   prefix                               = "default"
   cluster_name                         = local.common-name
-  network_plugin                       = "azure"
+
+  // TODO: Ensure Azure CNI netowkring
+
   vnet_subnet_id                       = module.network.vnet_subnets[0]
   os_disk_size_gb                      = 50
   sku_tier                             = "Free" # defaults to Free
@@ -30,16 +32,16 @@ module "aks" {
   agents_min_count                     = 1
   agents_max_count                     = 1
   agents_max_pods                      = 100
-  agents_pool_name                     = "exnodepool"
+
+  // TODO: Name for the agent node pool should be "exnodepool"
+
   agents_availability_zones            = []
   agents_type                          = "VirtualMachineScaleSets"
   agents_size                          = "standard_d4ds_v4"
   log_analytics_workspace_enabled      = false
   cluster_log_analytics_workspace_name = "${local.common-name}-aks"
 
-  attached_acr_id_map = {
-    "hack_acr" : azurerm_container_registry.hack.id
-  }
+  // TODO: Attach this aks to the container registry
 
   agents_labels = {
     "nodepool" : "defaultnodepool"
@@ -52,9 +54,8 @@ module "aks" {
   ingress_application_gateway_enabled          = false
   ingress_application_gateway_name             = "${local.common-name}-agw"
   ingress_application_gateway_subnet_id        = module.network.vnet_subnets[1]
-  network_contributor_role_assigned_subnet_ids = {
-    aks-agw-snet = module.network.vnet_subnets[1]
-  }
+
+  // TODO: Ensure that the network contributor role is assigned the subnet aks-agw
 
   network_policy             = "azure"
   net_profile_dns_service_ip = "10.0.0.10"

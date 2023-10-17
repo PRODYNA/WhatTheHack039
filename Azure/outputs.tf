@@ -5,6 +5,6 @@ output "hack_common_name" {
 
 // The login password for the database
 output "sql_server_password" {
-  value     = azurerm_mssql_server.hack.administrator_login_password
+  value     = // TODO: Write down the randomply generated database password to the output
   sensitive = true
 }
