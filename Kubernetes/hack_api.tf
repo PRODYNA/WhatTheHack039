@@ -20,7 +20,7 @@ resource "kubernetes_secret" "hack_api" {
   metadata {
     name      = "api"
     namespace = kubernetes_namespace.hack.metadata[0].name
-    labels = {
+    labels    = {
       run = "api"
     }
   }
@@ -41,9 +41,8 @@ resource "kubernetes_deployment" "hack_api" {
   }
 
   spec {
-    // Challenge 03 - START - Disable fixed number of replicas
-    replicas = null
-    // Challenge 03 - END - Disable fixed number of replicas
+    // TODO: Avoid number of replicas is reset on every terraform apply after the deployment was automatically scaled
+    replicas = 1
 
     selector {
       match_labels = {
@@ -128,8 +127,8 @@ resource "kubernetes_service" "api" {
 // Ingress for the Web App
 resource "kubernetes_ingress_v1" "api" {
   metadata {
-    name        = "api"
-    namespace   = kubernetes_namespace.hack.metadata.0.name
+    name      = "api"
+    namespace = kubernetes_namespace.hack.metadata.0.name
   }
   spec {
     rule {
