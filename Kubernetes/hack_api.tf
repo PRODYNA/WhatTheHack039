@@ -3,7 +3,7 @@ resource "kubernetes_config_map" "hack_api" {
   metadata {
     name      = "api"
     namespace = kubernetes_namespace.hack.metadata.0.name
-    labels = {
+    labels    = {
       run = "api"
     }
   }
@@ -36,7 +36,7 @@ resource "kubernetes_deployment" "hack_api" {
   metadata {
     name      = "api"
     namespace = kubernetes_namespace.hack.metadata.0.name
-    labels = {
+    labels    = {
       run                   = "api"
       aadpodidentitybinding = "app1-identity"
     }
@@ -97,18 +97,6 @@ resource "kubernetes_deployment" "hack_api" {
             read_only  = true
           }
 
-          // Mount the PVC as /data
-          volume_mount {
-            mount_path = "/data"
-            name       = "api-data"
-          }
-
-          // Mount the PVC as /data
-          volume_mount {
-            mount_path = "/shared"
-            name       = "api-data-shared"
-          }
-
           // Override the command to use the secret
           command = [
             "sh", "-c", "SQL_SERVER_PASSWORD=$(cat /secrets/SQL_SERVER_PASSWORD) python3 sql_api.py"
@@ -132,26 +120,11 @@ resource "kubernetes_deployment" "hack_api" {
         volume {
           name = "secrets-inline"
           csi {
-            driver    = "secrets-store.csi.k8s.io"
-            read_only = true
+            driver            = "secrets-store.csi.k8s.io"
+            read_only         = true
             volume_attributes = {
               secretProviderClass = data.terraform_remote_state.azure.outputs.hack_common_name
             }
-          }
-        }
-
-        // Mount the persistent volume claim
-        volume {
-          name = "api-data"
-          persistent_volume_claim {
-            claim_name = "api-data"
-          }
-        }
-
-        volume {
-          name = "api-data-shared"
-          persistent_volume_claim {
-            claim_name = "api-data-shared"
           }
         }
 
@@ -161,7 +134,7 @@ resource "kubernetes_deployment" "hack_api" {
   }
 
   wait_for_rollout = true
-  depends_on = [
+  depends_on       = [
     kubectl_manifest.secretproviderclass
   ]
 }
@@ -193,8 +166,8 @@ resource "kubernetes_service" "api" {
 // Ingress for the Web App
 resource "kubernetes_ingress_v1" "api" {
   metadata {
-    name      = "api"
-    namespace = kubernetes_namespace.hack.metadata.0.name
+    name        = "api"
+    namespace   = kubernetes_namespace.hack.metadata.0.name
     annotations = {
       "cert-manager.io/cluster-issuer" = local.clusterissuer_name
     }
@@ -219,7 +192,7 @@ resource "kubernetes_ingress_v1" "api" {
     tls {
       // This secret does not need to exist, it will be created by cert-manaager
       secret_name = "api-tls"
-      hosts = [
+      hosts       = [
         local.public_hostname
       ]
     }
@@ -229,39 +202,6 @@ resource "kubernetes_ingress_v1" "api" {
   depends_on = [
     helm_release.ingress-nginx
   ]
-}
-
-// Create a persistent volume claim for the api
-resource "kubernetes_persistent_volume_claim" "hack_api" {
-  metadata {
-    name      = "api-data"
-    namespace = kubernetes_namespace.hack.metadata.0.name
-  }
-  spec {
-    storage_class_name = local.premium_zrs_storage_class_name
-    access_modes       = ["ReadWriteOnce"]
-    resources {
-      requests = {
-        storage = "10Gi"
-      }
-    }
-  }
-}
-
-resource "kubernetes_persistent_volume_claim" "hack_api_shared" {
-  metadata {
-    name      = "api-data-shared"
-    namespace = kubernetes_namespace.hack.metadata.0.name
-  }
-  spec {
-    storage_class_name = "azurefile-csi-premium"
-    access_modes       = ["ReadWriteMany"]
-    resources {
-      requests = {
-        storage = "10Gi"
-      }
-    }
-  }
 }
 
 // Challenge 03 - START - Add horizontal pod autoscaler for the API
