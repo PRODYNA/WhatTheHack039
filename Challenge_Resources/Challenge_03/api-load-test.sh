@@ -33,6 +33,7 @@ function test_load {
     echo -n "."
     sleep 1
   done
+  echo ""
   echo "Completed stress test."
 }
 test_load 50
