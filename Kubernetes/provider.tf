@@ -24,6 +24,12 @@ terraform {
       version = "2.0.3"
     }
 
+    // For executing local scripts
+    null = {
+      source  = "hashicorp/null"
+      version = "3.1.0"
+    }
+
   }
 
   // sticking to the last "nice" version

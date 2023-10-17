@@ -2,6 +2,13 @@
 resource "kubernetes_namespace" "ingress-nginx" {
   metadata {
     name = "ingress-nginx"
+
+    annotations = {
+      "openservicemesh.io/sidecar-injection" : "disabled"
+    }
+    labels = {
+      "openservicemesh.io/monitored-by" : "osm"
+    }
   }
 }
 

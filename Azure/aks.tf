@@ -73,6 +73,10 @@ module "aks" {
   }
   /* Challenge 03 - END - Enable Prometheus add-on profile */
 
+  /* Challenge 07 - START - Enable Open Service Mesh add-on profile */
+  open_service_mesh_enabled = true
+  /* Challenge 07 - END - Enable Open Service Mesh add-on profile */
+
   depends_on = [module.network]
 }
 
