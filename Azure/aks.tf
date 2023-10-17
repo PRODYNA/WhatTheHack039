@@ -73,10 +73,6 @@ module "aks" {
   }
   /* Challenge 03 - END - Enable Prometheus add-on profile */
 
-  /* Challenge 07 - START - Enable Open Service Mesh add-on profile */
-  open_service_mesh_enabled = true
-  /* Challenge 07 - END - Enable Open Service Mesh add-on profile */
-
   depends_on = [module.network]
 }
 
@@ -116,7 +112,8 @@ resource "azurerm_role_assignment" "aks-keyvault" {
 resource "azurerm_federated_identity_credential" "hack-credential" {
   name                = "${local.common-name}-credential"
   resource_group_name = azurerm_resource_group.hack.name
-  audience            = ["api://AzureADTokenExchange"] // should be this value, documented here https://learn.microsoft.com/en-us/graph/api/application-post-federatedidentitycredentials?view=graph-rest-1.0&tabs=http
+  audience            = ["api://AzureADTokenExchange"]
+  // should be this value, documented here https://learn.microsoft.com/en-us/graph/api/application-post-federatedidentitycredentials?view=graph-rest-1.0&tabs=http
   issuer              = module.aks.oidc_issuer_url
   parent_id           = azurerm_user_assigned_identity.hack.id
   subject             = "system:serviceaccount:hack:aks-keyvault"

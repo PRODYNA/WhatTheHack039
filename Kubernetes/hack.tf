@@ -6,13 +6,6 @@ locals {
 resource "kubernetes_namespace" "hack" {
   metadata {
     name = "hack"
-
-    annotations = {
-      "openservicemesh.io/sidecar-injection" : "enabled"
-    }
-    labels = {
-      "openservicemesh.io/monitored-by" : "osm"
-    }
   }
 }
 
