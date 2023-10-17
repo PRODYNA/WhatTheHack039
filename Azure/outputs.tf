@@ -19,10 +19,12 @@ output "keyvault_client_id" {
   value = azurerm_user_assigned_identity.hack.client_id
 }
 
+// The keyvault client secret for the SQL database password
 output "sql_server_password_name" {
   value = local.sql-password-secret-name
 }
 
+// The tenant ID
 output "tenant_id" {
   value = data.azurerm_client_config.current.tenant_id
 }

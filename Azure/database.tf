@@ -1,4 +1,5 @@
 locals {
+  // The name of the database user
   database_user = "azure"
 }
 
@@ -28,7 +29,7 @@ resource "azurerm_mssql_database" "hack" {
   zone_redundant = false
 }
 
-// Open database to public access
+// Open database to VNets
 resource "azurerm_mssql_firewall_rule" "public" {
   name             = "public"
   server_id        = azurerm_mssql_server.hack.id
