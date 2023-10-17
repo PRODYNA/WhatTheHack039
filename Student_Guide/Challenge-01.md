@@ -13,32 +13,26 @@ The sample application we will use in this hack has three components, as the fol
 ![app architecture](./images/app_arch.png)
 
 The web & API components are documented at the links below. Use this documentation for hints on how to deploy them and how they work:
-- A [Web](./Resources/web) component that offers an HTML portal that shows the information.
-- An [API](./Resources/api) component that accesses a backend database.
+- A [Web](./Azure/Resources/web) component that offers an HTML portal that shows the information.
+- An [API](./Azure/Resources/api) component that accesses a backend database.
 - A **database** which is only used to return a simple query that shows the database version.
-
-
 
 ### Build & Publish Containers to Azure Container Register
 
-Look in the `/api` and `/web` folders of the `Resources.zip` package provided by your coach to find the source code for the sample application we will use for this hack. You will find a Dockerfile in each folder that you can use to build container images for the API and Web components.
+Look in the `/api` and `/web` folders of the `Azure\Resources` in this repo to find the source code for the sample application we will use for this hack. You will find a Dockerfile in each folder that you can use to build container images for the API and Web components.
 
 - Create an Azure Container Registry. 
 - Build the API and Web container images and store them in your new ACR.
+
+For this first challenge the idea is to use az cli to familiarize a bit. From Challenge 02 we will use Terraform. 
 
 **HINT:** You do not need to have Docker installed on your workstation to build containers. 
 
 ### Run the Sample Application
 
-You can complete the challenge with either one of these two options:
+You should complete the challenge by
 
-#### Option 1: Using your local Docker installation:
-  - Deploy the **database** as a SQL Server as container in your local machine
-  - Deploy the **API** image in your local machine out of your ACR (you will need a container runtime in your local machine).
-  - Make sure that the API can access the database (you can test calling the API endpoints)
-  - Deploy the **web** frontend that will connect to the API.
-#### Option 2: Using Azure Container Instances 
-**Note:** Use this option if you do not have a local Docker installation.
+Using Azure Container Instances 
   - Deploy the **database** as an Azure SQL Database
   - Deploy the **API** image as Azure Container Instance in Azure
   - Make sure that the API can connect to the database
