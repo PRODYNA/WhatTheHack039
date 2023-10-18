@@ -4,7 +4,12 @@ hack_id=$1
 
 digits=20000  # Test with a couple of digits first (like 10), and then with more (like 20,000) to produce real CPU load
 # Determine endpoint IP depending of whether the cluster has outboundtype=uDR or not
-aks_outbound=$(az aks show -n $hack_id -g $hack_id --query networkProfile.outboundType -o tsv)
+if [[ -n $hack_id ]]; then
+  aks_outbound=$(az aks show -n $hack_id -g $hack_id --query networkProfile.outboundType -o tsv)
+else
+  aks_outbound="undefined"
+fi
+
 if [[ "$aks_outbound" == "userDefinedRouting" ]]; then
   endpoint_ip=$azfw_ip
   echo "Using Azure Firewall's IP $azfw_ip as endpoint..."
@@ -16,8 +21,8 @@ else
 fi
 # Tests
 echo "Testing if API is reachable (no stress test yet)..."
-curl -k "https://${endpoint_ip}.nip.io/api/healthcheck"
-curl -k "https://${endpoint_ip}.nip.io/api/pi?digits=5"
+curl -k "http://hack.${endpoint_ip}.traefik.me/api/healthcheck"
+curl -k "http://hack.${endpoint_ip}.traefik.me/api/pi?digits=5"
 function test_load {
   if [[ -z "$1" ]]
   then
@@ -28,8 +33,8 @@ function test_load {
   echo "Launching stress test: Calculating $digits digits of pi $times times..."
   for ((i=1; i <= $times; i++))
   do
-    curl -s -k "https://${endpoint_ip}.nip.io" >/dev/null 2>&1
-    curl -s -k "https://${endpoint_ip}.nip.io/api/pi?digits=${digits}" >/dev/null 2>&1 &
+    curl -s -k "https://hack.${endpoint_ip}.traefik.me" >/dev/null 2>&1
+    curl -s -k "https://hack.${endpoint_ip}.traefik.me/api/pi?digits=${digits}" >/dev/null 2>&1 &
     echo -n "."
     sleep 1
   done
