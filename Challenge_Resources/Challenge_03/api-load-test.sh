@@ -4,7 +4,12 @@ hack_id=$1
 
 digits=20000  # Test with a couple of digits first (like 10), and then with more (like 20,000) to produce real CPU load
 # Determine endpoint IP depending of whether the cluster has outboundtype=uDR or not
-aks_outbound=$(az aks show -n $hack_id -g $hack_id --query networkProfile.outboundType -o tsv)
+if [[ -n $hack_id ]]; then
+  aks_outbound=$(az aks show -n $hack_id -g $hack_id --query networkProfile.outboundType -o tsv)
+else
+  aks_outbound="undefined"
+fi
+
 if [[ "$aks_outbound" == "userDefinedRouting" ]]; then
   endpoint_ip=$azfw_ip
   echo "Using Azure Firewall's IP $azfw_ip as endpoint..."
