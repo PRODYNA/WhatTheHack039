@@ -67,6 +67,21 @@ resource "kubernetes_deployment" "hack_api" {
       spec {
         service_account_name = "aks-keyvault"
 
+        affinity {
+          node_affinity {
+            preferred_during_scheduling_ignored_during_execution {
+              weight = 1
+              preference {
+                match_expressions {
+                  key      = "nodepool"
+                  operator = "In"
+                  values   = ["alpha"]
+                }
+              }
+            }
+          }
+        }
+
         container {
           image = "${data.terraform_remote_state.azure.outputs.hack_common_name}.azurecr.io/hack/sqlapi:1.0"
           name  = "api"
