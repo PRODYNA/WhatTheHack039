@@ -38,10 +38,13 @@ These docs might help you achieving these objectives:
 Using the API of the solution you can create CPU utilization with these commands, that leverage the `pi` endpoint of the
 API (calculate pi number with x digits).
 
-From the root of the repository execute the bash script:
+In the Challenge Resources directory you can find a bash script to generate load by repeatedly invoking the `pi`
+endpoint.
+
+- [/api-load-test.sh](../Challenge_Resources/Challenge_03/api-load-test.sh)
 
 ```bash
-./Challenge-Resources/Scripts/03-Create-CPU-Utilization.sh $your_hack_id
+../Challenge_Resources/Challenge_03/api-load-test.sh
 ```
 
 You can check the increased CPU utilization in Azure Monitor in Prometheus.
