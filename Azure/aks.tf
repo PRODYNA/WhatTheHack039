@@ -54,6 +54,7 @@ module "aks" {
     "Agent" : "defaultnodepoolagent"
   }
 
+  // TODO: Be aware of a second nodepool called "alpha", apply infrastructure to create it
   /* Challenge 05 - START - Add second node pool */
   node_pools = {
     alpha = {

@@ -78,7 +78,8 @@ resource "kubernetes_ingress_v1" "web" {
     name      = "web"
     namespace = kubernetes_namespace.hack.metadata.0.name
     annotations = {
-      "cert-manager.io/cluster-issuer" = local.clusterissuer_name
+      // TODO: Enable this annoatation for cert-manager to assign a TLS certificate
+      #"cert-manager.io/cluster-issuer" = local.clusterissuer_name
     }
   }
   spec {
@@ -99,13 +100,14 @@ resource "kubernetes_ingress_v1" "web" {
         }
       }
     }
-    tls {
-      // This secret does not need to exist, it will be created by cert-manaager
-      secret_name = "web-tls"
-      hosts = [
-        local.public_hostname
-      ]
-    }
+    // TODO: Enable this TLS block to start using TLS
+    #tls {
+    #  // This secret does not need to exist, it will be created by cert-manaager
+    #  secret_name = "web-tls"
+    #  hosts = [
+    #    local.public_hostname
+    #  ]
+    #}
     ingress_class_name = "nginx"
   }
 

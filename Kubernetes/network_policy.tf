@@ -1,3 +1,4 @@
+// TODO: Be aware that we are network policies here, see Challenge_Resources/Challenge_05/README.md for more information
 // Challenge-05 - START - Add a kubernetes network policies to limit resource access
 
 // Create a policy to allow access to web only the ingress-nginx namespace
