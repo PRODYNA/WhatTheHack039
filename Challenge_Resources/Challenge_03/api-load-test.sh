@@ -16,8 +16,8 @@ else
 fi
 # Tests
 echo "Testing if API is reachable (no stress test yet)..."
-curl -k "https://${endpoint_ip}.nip.io/api/healthcheck"
-curl -k "https://${endpoint_ip}.nip.io/api/pi?digits=5"
+curl -k "http://hack.${endpoint_ip}.traefik.me/api/healthcheck"
+curl -k "http://hack.${endpoint_ip}.traefik.me/api/pi?digits=5"
 function test_load {
   if [[ -z "$1" ]]
   then
@@ -28,8 +28,8 @@ function test_load {
   echo "Launching stress test: Calculating $digits digits of pi $times times..."
   for ((i=1; i <= $times; i++))
   do
-    curl -s -k "https://${endpoint_ip}.nip.io" >/dev/null 2>&1
-    curl -s -k "https://${endpoint_ip}.nip.io/api/pi?digits=${digits}" >/dev/null 2>&1 &
+    curl -s -k "https://hack.${endpoint_ip}.traefik.me" >/dev/null 2>&1
+    curl -s -k "https://hack.${endpoint_ip}.traefik.me/api/pi?digits=${digits}" >/dev/null 2>&1 &
     echo -n "."
     sleep 1
   done
