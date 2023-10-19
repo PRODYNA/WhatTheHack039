@@ -71,7 +71,7 @@ spec:
 EOF
 ```
 
-## Enable mTLS between ingress and web application component
+## Enable mTLS between ingress and the application components
 
 As a first step the OSM configuration must be extended by certificate we are going to use in the ingress controller.
 This is done by patching the meshconfig resource.
@@ -98,11 +98,16 @@ For verification run
  kubectl edit -n kube-system meshconfigs.config.openservicemesh.io osm-mesh-config
 ```
 
-Change the ingress controllers of web to use SSL and the new certificate. The following patch will add the required
+Change the ingress controllers of web and api to operate on the HTTPS protocol and user the new SSL certificate. The
+following patches will add the required
 annotations.
 
 ```shell
-kubectl patch ingress -n hack api --type='json' -p='[{"op": "add", "path": "/metadata/annotations", "value": {  "cert-manager.io/cluster-issuer": "letsencrypt-prod",  "nginx.ingress.kubernetes.io/backend-protocol": "HTTPS",  "nginx.ingress.kubernetes.io/configuration-snippet": "proxy_ssl_name \"default.hack.cluster.local\";\n",  "nginx.ingress.kubernetes.io/proxy-ssl-secret": "kube-system/osm-nginx-client-cert",  "nginx.ingress.kubernetes.io/proxy-ssl-verify": "on"} }]'
+kubectl patch ingress -n hack web --type='json' -p='[{"op": "add", "path": "/metadata/annotations", "value": {  "cert-manager.io/cluster-issuer": "letsencrypt-prod",  "nginx.ingress.kubernetes.io/backend-protocol": "HTTPS",  "nginx.ingress.kubernetes.io/configuration-snippet": "proxy_ssl_name \"default.hack.cluster.local\";\n",  "nginx.ingress.kubernetes.io/proxy-ssl-secret": "kube-system/osm-nginx-client-cert",  "nginx.ingress.kubernetes.io/proxy-ssl-verify": "on"} }]'
+```
+
+```shell
+kubectl patch ingress -n hack api --type='json' -p='[{"op": "add", "path": "/metadata/annotations", "value": {  "cert-manager.io/cluster-issuer": "letsencrypt-prod",  "nginx.ingress.kubernetes.io/backend-protocol": "HTTPS",  "nginx.ingress.kubernetes.io/configuration-snippet": "proxy_ssl_name \"aks-keyvault.hack.cluster.local\";\n",  "nginx.ingress.kubernetes.io/proxy-ssl-secret": "kube-system/osm-nginx-client-cert",  "nginx.ingress.kubernetes.io/proxy-ssl-verify": "on"} }]'
 ```
 
 The following lines will be added to the ingress controller of web.
@@ -116,7 +121,7 @@ The following lines will be added to the ingress controller of web.
     nginx.ingress.kubernetes.io/proxy-ssl-verify: "on"
 ```
 
-Change IngressBackend to use https and a AuthenticatedPrincipal as source.
+Change IngressBackend definitions to use https and a AuthenticatedPrincipal as source.
 https://release-v0-11.docs.openservicemesh.io/docs/guides/traffic_management/ingress/#ingressbackend-api
 
 ```shell
@@ -135,8 +140,34 @@ spec:
     tls:
       skipClientCertValidation: false
   sources:
+  - kind: Service
+    namespace: ingress-nginx
+    name: ingress-nginx-controller
   - kind: AuthenticatedPrincipal
     name: ingress-nginx.ingress-nginx.cluster.local
 EOF
 ```
 
+```shell
+kubectl apply -f - <<EOF
+kind: IngressBackend
+apiVersion: policy.openservicemesh.io/v1alpha1
+metadata:
+  name: api
+  namespace: hack
+spec:
+  backends:
+  - name: api
+    port:
+      number: 8080 # targetPort of web service
+      protocol: https
+    tls:
+      skipClientCertValidation: false
+  sources:
+  - kind: Service
+    namespace: ingress-nginx
+    name: ingress-nginx-controller
+  - kind: AuthenticatedPrincipal
+    name: ingress-nginx.ingress-nginx.cluster.local
+EOF
+```
