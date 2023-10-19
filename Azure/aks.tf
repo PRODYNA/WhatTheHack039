@@ -34,7 +34,7 @@ module "aks" {
   /* Challenge 03 - END - Enable Auto Scaling */
   agents_max_pods                      = 100
   agents_pool_name                     = "exnodepool"
-  agents_availability_zones            = []
+  agents_availability_zones            = ["1", "2", "3"]
   agents_type                          = "VirtualMachineScaleSets"
   agents_size                          = "standard_d4ds_v4"
   /* Challenge 03 - START - Enable Log Analytics features (workspace and solution) */

@@ -15,12 +15,7 @@ resource "helm_release" "mysql" {
   ]
 
   set {
-    name = "primary.persistence.storageClass"
-    value = local.premium_zrs_storage_class_name
-  }
-
-  set {
-    name = "secondary.persistence.storageClass"
+    name = "global.storageClass"
     value = local.premium_zrs_storage_class_name
   }
 
